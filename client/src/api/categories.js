@@ -1,0 +1,37 @@
+import axios from "./network";
+
+// Get all categories
+export const getCategories = async (name) => {
+  try {
+    const response = await axios.get("/categories", {
+      params: { name },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    throw error;
+  }
+};
+
+// Create a category
+export const createCategory = async (categoryData) => {
+  try {
+    const response = await axios.post("/categories", categoryData);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating category:", error);
+    throw error;
+  }
+};
+
+// Delete a category
+export const deleteCategory = async (categoryId) => {
+  try {
+    const response = await axios.delete(`/categories/${categoryId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    // throw error;
+  }
+};
