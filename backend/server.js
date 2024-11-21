@@ -21,28 +21,40 @@ const path = require("path");
 // Middleware
 app.use(express.json());
 
+// Static file handling for uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// CORS configuration
+const allowedOrigins = ["http://labzkit.com.au", "http://localhost:3000"];
 app.use(
   cors({
-    origin: "http://localhost:3000", // Your frontend URL
-    credentials: true, // Allow credentials if you are using cookies
+    origin: function (origin, callback) {
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 
+// HTTP request logging
 app.use(morgan("dev"));
-// Routes
 
-// Endpoint to handle image uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Routes
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/images", imageRoutes);
+
+// Default route
 app.get("/", (req, res) => {
   res.send("Deployed");
 });
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
