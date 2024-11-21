@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../api/users";
 import { toast } from "react-toastify";
@@ -11,6 +10,7 @@ const Register = () => {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,7 +28,7 @@ const Register = () => {
       return;
     }
     if (!user.lastName) {
-      toast.error("Please enter last name. ");
+      toast.error("Please enter last name.");
       return;
     }
     if (!user.email) {
@@ -39,16 +39,19 @@ const Register = () => {
       toast.error("Please enter password.");
       return;
     }
+
     try {
+      setLoading(true); // Set loading to true
       const response = await registerUser(user);
       if (response) {
-        toast.success("Registration Successfull");
+        toast.success("Registration Successful");
         navigate("/login");
       }
     } catch (err) {
-      console.log(err);
-      toast.error(err?.response?.data?.msg || "Registration Faild");
-      // setError("An error occurred during signup. Please try again.");
+      console.error(err);
+      toast.error(err?.response?.data?.msg || "Registration Failed");
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -107,9 +110,14 @@ const Register = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md focus:outline-none transition-all duration-300 ease-in-out hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+            disabled={loading} // Disable button while loading
+            className={`w-full py-2 rounded-md focus:outline-none transition-all duration-300 ease-in-out ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+            }`}
           >
-            Sign Up
+            {loading ? "Registering..." : "Sign Up"}
           </button>
           <p className="mt-4 text-center text-darkText dark:text-darkText">
             Already have an account?{" "}

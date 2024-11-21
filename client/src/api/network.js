@@ -1,9 +1,11 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { config } from "../config";
 
 // Create axios instance
+let url = process.env.REACT_APP_MODE;
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api", // Replace with your API URL
+  baseURL: `${config.endpoint}/api`, // Replace with your API URL
   timeout: 5000,
 });
 
@@ -35,7 +37,7 @@ axiosInstance.interceptors.response.use(
         window.location.href = "/login";
       }, 1500);
 
-      return Promise.resolve(); 
+      return Promise.resolve();
     }
 
     return Promise.reject(error);

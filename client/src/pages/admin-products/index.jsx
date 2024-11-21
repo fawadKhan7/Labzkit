@@ -9,6 +9,8 @@ import { DeleteColumnOutlined } from "@ant-design/icons";
 import { FiDelete } from "react-icons/fi";
 import { FaDeleteLeft } from "react-icons/fa6";
 import { BiPen, BiPencil, BiTrash } from "react-icons/bi";
+import { genders } from "../../data/selectFieldsData";
+import SearchInput from "../../components/Search";
 
 const AdminProductList = () => {
   const navigate = useNavigate();
@@ -17,6 +19,8 @@ const AdminProductList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [selectedTab, setSelectedTab] = useState("products"); // Track selected tab ('products' or 'categories')
+  const [searchTerm, setSearchTerm] = useState("");
+  const [genderFilter, setGenderFilter] = useState("");
 
   const openModal = (productId) => {
     setSelectedProductId(productId);
@@ -48,7 +52,7 @@ const AdminProductList = () => {
   };
 
   const fetchProducts = async () => {
-    const response = await getProducts();
+    const response = await getProducts(searchTerm, genderFilter);
     setProductData(response);
   };
 
@@ -71,9 +75,12 @@ const AdminProductList = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories(); // Fetch categories when component mounts
+    fetchCategories();
   }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [searchTerm, genderFilter]);
 
   return (
     <div className="p-6 dark:bg-[#1f2937] min-h-screen">
@@ -110,20 +117,54 @@ const AdminProductList = () => {
       </div>
 
       {/* Create product and offer buttons */}
-      <div className="flex justify-between items-center flex-wrap gap-4 mb-6">
-        <button
-          onClick={handleCreateProduct}
-          className="flex-grow sm:flex-grow-0 bg-blue-500 hover:bg-blue-700 transition-all duration-300 text-white py-3 px-6 rounded-md"
-        >
-          Create Product
-        </button>
-        <button
-          onClick={() => navigate("/admin/offer/create")}
-          className="flex-grow sm:flex-grow-0 bg-blue-500 hover:bg-blue-700 transition-all duration-300 text-white py-3 px-6 rounded-md"
-        >
-          Handle Offers Banner
-        </button>
+      <div className="flex flex-col gap-6 mb-6">
+  {/* Top Section: Create Product and Handle Offers Buttons */}
+  <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+    <button
+      onClick={handleCreateProduct}
+      className="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 text-white py-3 px-4 rounded-lg shadow-md"
+    >
+      Create Product
+    </button>
+
+    <button
+      onClick={() => navigate("/admin/offer/create")}
+      className="flex-1 sm:flex-none bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 transition-all duration-300 text-white py-3 px-4 rounded-lg shadow-md"
+    >
+      Handle Offers Banner
+    </button>
+  </div>
+
+  {/* Conditional Section: Search and Filters */}
+  {selectedTab === "products" && (
+    <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+      {/* Search Input */}
+      <div className="flex-1">
+        <SearchInput
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search Products"
+        />
       </div>
+
+      {/* Gender Filter Dropdown */}
+      <div className="relative w-full lg:w-48">
+        <select
+          value={genderFilter}
+          onChange={(e) => setGenderFilter(e.target.value)}
+          className="w-full py-3 px-4 text-md border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">All Genders</option>
+          {genders.map((elem) => (
+            <option key={elem} value={elem}>
+              {elem}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  )}
+</div>
 
       {/* Show products or categories based on selectedTab */}
       {selectedTab === "products" ? (

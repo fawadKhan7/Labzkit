@@ -51,7 +51,12 @@ const createProduct = async (req, res) => {
 // Get all products
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category"); // Populate category for each product
+    const { name, gender } = req.query;
+    const filter = {};
+    if (name) filter.name = new RegExp(name, "i");
+    if (gender) filter.gender = gender;
+
+    const products = await Product.find(filter).populate("category");
     res.status(200).json(products);
   } catch (error) {
     res
@@ -62,7 +67,7 @@ const getAllProducts = async (req, res) => {
 
 const getAllProductsByCategory = async (req, res) => {
   const { categoryId } = req.params;
-  const { name, gender } = req.query; // Extract search and filter parameters
+  const { name, gender } = req.query;
 
   try {
     // Find the category by ID and select only the name field
@@ -72,12 +77,10 @@ const getAllProductsByCategory = async (req, res) => {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    // Build the filter object
     const filter = { category: categoryId };
-    if (name) filter.name = new RegExp(name, "i"); // Case-insensitive search
-    if (gender) filter.gender = gender; // Filter by gender if provided
+    if (name) filter.name = new RegExp(name, "i");
+    if (gender) filter.gender = gender;
 
-    // Find products by category with applied filters and populate category field
     const products = await Product.find(filter).populate("category");
 
     res.status(200).json({ products, category });

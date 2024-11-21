@@ -2,9 +2,11 @@ import { toast } from "react-toastify";
 import axios from "./network";
 
 // Get all products
-export const getProducts = async () => {
+export const getProducts = async (name = "", gender = "") => {
   try {
-    const response = await axios.get("/products");
+    const response = await axios.get("/products", {
+      params: { name, gender },
+    });
     return response.data;
   } catch (error) {
     toast.error("Error fetching products");

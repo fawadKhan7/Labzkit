@@ -30,9 +30,13 @@ const ProductCreate = () => {
   const [productImageFile, setProductImageFile] = useState(null);
   const [categoryImageFile, setCategoryImageFile] = useState(null);
   const [productImagePreview, setProductImagePreview] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(false);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === "quantity" && value < 0) {
+      toast.error("You can't select less than 0");
+      return;
+    }
     setProduct({ ...product, [name]: value });
   };
 
@@ -81,8 +85,8 @@ const ProductCreate = () => {
     if (categoryImageFile) {
       formData.append("image", categoryImageFile);
     }
+    setIsLoading(true);
     try {
-      // Call the createProduct function to send the data to the API
       const createdCategory = await createCategory(formData);
       setCategory({});
       toast.success("Category Created Successfully");
@@ -90,6 +94,8 @@ const ProductCreate = () => {
       setIsProductForm(true);
     } catch (error) {
       toast.error("Category creation failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -125,15 +131,16 @@ const ProductCreate = () => {
     if (productImageFile) {
       formData.append("image", productImageFile);
     }
-
+    setIsLoading(true);
     try {
-      // Call the createProduct function to send the data to the API
       const createdProduct = await createProduct(formData);
       setProduct({});
       toast.success("Product Created Successfully");
       navigate("/admin/products");
     } catch (error) {
       toast.error("Product creation failed");
+    } finally {
+      setIsLoading(true);
     }
   };
 
@@ -155,7 +162,6 @@ const ProductCreate = () => {
         {isProductForm ? "Create Product" : "Create Category"}
       </h2>
 
-      {/* Toggle between Product and Category forms */}
       <button
         onClick={() => setIsProductForm(!isProductForm)}
         className="mb-4 text-blue-600"
@@ -170,9 +176,7 @@ const ProductCreate = () => {
       >
         {isProductForm ? (
           <>
-            {/* Left Section: Image Preview and Upload */}
             <div className="w-full sm:w-1/3 flex flex-col  items-center">
-              {/* Image Preview or Default Placeholder */}
               <div className="w-full h-56 mb-4 border border-gray-300 rounded-md overflow-hidden shadow-sm flex items-center justify-center">
                 {productImagePreview ? (
                   <img
@@ -197,7 +201,6 @@ const ProductCreate = () => {
               />
             </div>
             <div className="w-full sm:w-2/3 flex flex-col space-y-6">
-              {/* Product Name */}
               <div>
                 <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
                   Product Name:
@@ -253,14 +256,14 @@ const ProductCreate = () => {
               {/*Discount Price */}
               <div>
                 <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Discount:
+                  Discount Price:
                 </label>
                 <input
                   type="number"
                   name="discountedPrice"
                   value={product.discountedPrice}
                   onChange={handleInputChange}
-                  placeholder="Enter Discount"
+                  placeholder="Enter Discount Price"
                   className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
                 />
               </div>
@@ -391,9 +394,20 @@ const ProductCreate = () => {
         <div className="mt-8 flex justify-center">
           <button
             type="submit"
-            className="px-8 py-3 text-white bg-blue-600 rounded-md shadow-md hover:bg-blue-700 transition duration-300 focus:outline-none"
+            className={`w-full py-2 px-4 rounded-md focus:outline-none transition-all duration-300 ease-in-out ${
+              isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+            }`}
+            disabled={isLoading}
           >
-            {isProductForm ? "Create Product" : "Create Category"}
+            {isProductForm
+              ? isLoading
+                ? "Creating Product..."
+                : "Create Product"
+              : isLoading
+              ? "Creating Category..."
+              : "Create Category"}
           </button>
         </div>
       </form>
