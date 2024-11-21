@@ -25,7 +25,7 @@ app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // CORS configuration
-const allowedOrigins = ["http://labzkit.com.au", "http://localhost:3000"];
+const allowedOrigins = ["https://labzkit.com.au", "http://localhost:3000"];
 app.use(
   cors({
     origin: function (origin, callback) {
