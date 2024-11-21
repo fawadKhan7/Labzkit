@@ -1,9 +1,10 @@
 import React from "react";
 import { Carousel } from "antd";
+import { getImageUrl } from "../utils/functions";
 
 const OfferCrousel = ({ urls }) => {
   return (
-    <Carousel autoplay draggable >
+    <Carousel autoplay >
       {urls?.map((img, index) => (
         <div key={index}>
           <img
@@ -13,7 +14,7 @@ const OfferCrousel = ({ urls }) => {
               objectFit: "contain",  
               objectPosition: "center",
             }}
-            src={img?.url}
+            src={getImageUrl(img?.url)}
             alt={`offer-${index}`} 
           />
         </div>

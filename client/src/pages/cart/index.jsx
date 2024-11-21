@@ -22,17 +22,15 @@ const Cart = () => {
 
   const handleCompleteOrder = async () => {
     setLoading(true);
-    await createOrder({ products: cartItems })
-      .then(() => {
-        toast.success("Order Completed");
-        clearCart();
-      })
-      .catch(() => {
-        toast.error("Couldn't complete your order!");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      await createOrder({ products: cartItems });
+      toast.success("Order Completed");
+      clearCart();
+    } catch (error) {
+      toast.error("Couldn't complete your order!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -108,9 +106,13 @@ const Cart = () => {
             <button
               disabled={loading}
               onClick={handleCompleteOrder}
-              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              className={`mt-4 py-2 px-4 rounded-md focus:outline-none transition-all duration-300 ease-in-out ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+              }`}
             >
-              Complete Order
+              {loading ? "Completing Order..." : "Complete Order"}
             </button>
             <button
               onClick={clearCart}

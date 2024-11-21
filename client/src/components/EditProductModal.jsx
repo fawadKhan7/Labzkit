@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 
 function ProductUpdateModal({ productId, onClose, onSave }) {
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [productData, setProductData] = useState({
     name: "",
     category: "",
@@ -88,7 +89,14 @@ function ProductUpdateModal({ productId, onClose, onSave }) {
     if (productImageFile) {
       formData.append("image", productImageFile);
     }
-    await onSave(productId, formData);
+    setIsLoading(true);
+    try {
+      await onSave(productId, formData);
+    } catch (error) {
+      toast.error("Internal Server Error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fetchCategories = async () => {
@@ -264,9 +272,13 @@ function ProductUpdateModal({ productId, onClose, onSave }) {
           <div className="mt-6 flex justify-end gap-6">
             <button
               type="submit"
-              className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
+              className={`w-24 py-2 px-4 rounded-md focus:outline-none transition-all duration-300 ease-in-out ${
+                isLoading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+              }`}
             >
-              Save
+              {isLoading ? " Saving..." : "Save"}
             </button>
             <button
               type="button"

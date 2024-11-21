@@ -5,7 +5,7 @@ import { getProductsByCategory } from "../../api/products";
 import { genders } from "../../data/selectFieldsData";
 import Loader from "../../components/Loader";
 import SearchInput from "../../components/Search";
-
+import debounce from "lodash.debounce"; // Import debounce
 const ProductsPage = () => {
   const { category } = useParams();
   const [categoryProducts, setCategoryProducts] = useState([]);
@@ -15,7 +15,7 @@ const ProductsPage = () => {
   const [isLoading, setIsLoading] = useState(false); // Loading state
 
   const fetchCategoryProducts = async () => {
-    setIsLoading(true); // Set loading to true before fetching
+    setIsLoading(true); 
     const response = await getProductsByCategory(
       category,
       searchTerm,
@@ -23,12 +23,16 @@ const ProductsPage = () => {
     );
     setCategoryProducts(response?.products);
     setCategoryName(response?.category?.name);
-    setIsLoading(false); // Set loading to false after fetching
+    setIsLoading(false);
   };
 
-  useEffect(() => {
+  const debouncedFetchProducts = debounce(() => {
     fetchCategoryProducts();
-  }, [category, searchTerm, genderFilter]); // Re-fetch when any filter changes
+  }, 500); 
+
+  useEffect(() => {
+    debouncedFetchProducts();
+  }, [category, searchTerm, genderFilter]); 
 
   return (
     <div className="p-6 flex flex-col gap-4 min-h-screen dark:bg-DarkPrimary dark:text-darkText">

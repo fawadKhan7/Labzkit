@@ -31,7 +31,7 @@ const MultiFileUploader = () => {
         uid: img._id, // Use _id as unique ID for each image
         name: img.url.split("/").pop(), // Extract the filename from URL for display
         status: "done", // The image has already been uploaded
-        url: img.url, // The URL of the uploaded image
+        url: getImageUrl(img.url), // The URL of the uploaded image
       }));
 
       setImages(imageFiles); // Update the images state
@@ -181,7 +181,7 @@ const MultiFileUploader = () => {
               }}
             >
               <img
-                src={getImageUrl(file.url)}
+                src={file.url}
                 alt={file.name}
                 style={{
                   width: "80px",

@@ -3,10 +3,9 @@ import { toast } from "react-toastify";
 import { config } from "../config";
 
 // Create axios instance
-let url = process.env.REACT_APP_MODE;
 const axiosInstance = axios.create({
-  baseURL: `${config.endpoint}/api`, // Replace with your API URL
-  timeout: 5000,
+  baseURL: `${config.endpoint}/api`,
+  timeout: 8000, // Timeout set to 8000ms
 });
 
 // Request interceptor to include JWT in headers
@@ -23,12 +22,17 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+// Response interceptor to handle timeouts and other errors
 axiosInstance.interceptors.response.use(
   (response) => {
     return response; // Simply return the response for successful requests
   },
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
+      toast.error(
+        "The request took too long to complete. Please check your connection or try again later."
+      );
+    } else if (error.response && error.response.status === 401) {
       toast.error("Your session has expired. Please log in again.");
 
       localStorage.removeItem("token"); // Remove expired token
@@ -36,10 +40,7 @@ axiosInstance.interceptors.response.use(
       setTimeout(() => {
         window.location.href = "/login";
       }, 1500);
-
-      return Promise.resolve();
-    }
-
+    } 
     return Promise.reject(error);
   }
 );
