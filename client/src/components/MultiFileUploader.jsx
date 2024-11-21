@@ -3,6 +3,7 @@ import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Image, Upload, message, Modal, Button, Space } from "antd";
 import { getImages, uploadImages, deleteImages } from "../api/images";
 import { toast } from "react-toastify";
+import { getImageUrl } from "../utils/functions";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -180,7 +181,7 @@ const MultiFileUploader = () => {
               }}
             >
               <img
-                src={file.url}
+                src={getImageUrl(file.url)}
                 alt={file.name}
                 style={{
                   width: "80px",

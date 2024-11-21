@@ -59,7 +59,7 @@ const HomePage = () => {
 
       <div className="flex items-center space-x-4 mb-6">
         <div className="flex-grow border-t border-1 border-black dark:border-white"></div>
-        <h1 className="text-gray-900 dark:text-darkText text-lg">
+        <h1 className="text-gray-900 dark:text-darkText text-lg mt-4">
           Featured Categories
         </h1>
         <div className="flex-grow border-t border-1 border-black dark:border-white"></div>
