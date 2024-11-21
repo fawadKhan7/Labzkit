@@ -129,7 +129,7 @@ const Header = () => {
                   Login
                 </button>
               </NavLink>
-              <NavLink to="/signup">
+              <NavLink to="/register">
                 <button className="px-4 py-2 text-sm rounded-full text-white bg-green-500 hover:bg-green-600">
                   Sign Up
                 </button>
