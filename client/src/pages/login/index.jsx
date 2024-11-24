@@ -1,101 +1,191 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { loginUser } from "../../api/users";
 import { useUser } from "../../context/UserContext";
+import CustomTextField from "../../components/FormField/CustomTextField";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Box, Typography, Paper, Grid } from "@mui/material";
+import { Stack } from "@mui/system";
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useUser();
-
   const navigate = useNavigate();
+  const { login } = useUser();
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCredentials({
-      ...credentials,
-      [name]: value,
-    });
-  };
+  const LoginSchema = Yup.object().shape({
+    email: Yup.string().required("Email is required").email("Invalid email"),
+    password: Yup.string().required("Password is required"),
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!credentials.email) {
-      toast.error("Please enter email");
-      return;
-    }
-    if (!credentials.password) {
-      toast.error("Please enter password");
-      return;
-    }
-    setIsLoading(true); // Set loading state to true
-    try {
-      const response = await loginUser(credentials);
-      if (response) {
-        login(response);
-        toast.success("Login Successful");
-        navigate("/");
+  const methods = useForm({
+    resolver: yupResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = methods;
+
+  const onSubmit = useCallback(
+    async (data) => {
+      setIsLoading(true);
+      try {
+        const response = await loginUser(data);
+        if (response) {
+          login(response);
+          toast.success("Login Successful");
+          navigate("/");
+        }
+      } catch (err) {
+        console.error(err);
+        setErrorMsg("Invalid email or password!");
+        reset();
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      toast.error("Invalid email or password!");
-    } finally {
-      setIsLoading(false); // Reset loading state
-    }
-  };
+    },
+    [login, navigate, reset]
+  );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm p-6 bg-white rounded-xl shadow-lg transition-all duration-300 ease-in-out transform dark:bg-darkPrimary dark:text-darkText">
-        <h2 className="text-2xl font-semibold text-center text-blue-700 mb-5 dark:text-blue-400">
-          Welcome Back to Labzkit
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-5">
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={credentials.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-darkBg dark:border-darkText dark:text-darkText transition duration-300 ease-in-out"
-              placeholder="Enter your email"
-            />
-          </div>
-          <div className="mb-5">
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={credentials.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-darkBg dark:border-darkText dark:text-darkText transition duration-300 ease-in-out"
-              placeholder="Enter your password"
-            />
-          </div>
-          <button
-            type="submit"
-            className={`w-full py-2 rounded-md focus:outline-none transition-all duration-300 ease-in-out ${
-              isLoading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-            }`}
-            disabled={isLoading}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "white",
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          minHeight: 450,
+          maxWidth: 400,
+          width: "100%",
+          borderRadius: 2,
+          backgroundColor: "#FFFFFF",
+          color: "#1C252E",
+          boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: 3,
+        }}
+      >
+        <Stack spacing={2}>
+          <Typography
+            variant="h5"
+            sx={{ color: "#1C252E", fontWeight: "bold", textAlign: "center" }}
           >
-            {isLoading ? "Logging In..." : "Log In"}
-          </button>
-          <p className="mt-5 text-center text-sm text-gray-600 dark:text-darkText">
-            Don't have an account?{" "}
-            <a
-              onClick={() => navigate("/register")}
-              className="text-blue-600 dark:text-blue-600 cursor-pointer"
-            >
-              Sign up
-            </a>
-          </p>
+            Sign in to Labzkit
+          </Typography>
+        </Stack>
+
+        {errorMsg && (
+          <Box
+            sx={{
+              mb: 2,
+              p: 2,
+              bgcolor: "rgba(255, 0, 0, 0.1)",
+              color: "#FF5C5C",
+              borderRadius: 1,
+            }}
+          >
+            {errorMsg}
+          </Box>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <CustomTextField
+                name="email"
+                label="Email"
+                methods={methods}
+                sx={{ backgroundColor: "#F5F5F5", borderRadius: "4px" }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <CustomTextField
+                name="password"
+                label="Password"
+                type="password"
+                methods={methods}
+                sx={{ backgroundColor: "#F5F5F5", borderRadius: "4px" }}
+              />
+            </Grid>
+            <Grid item xs={12} mt={1}>
+              <LoadingButton
+                fullWidth
+                size="large"
+                type="submit"
+                variant="contained"
+                loading={isSubmitting}
+                disabled={isLoading || isSubmitting}
+                sx={{
+                  backgroundColor: "#00A76F",
+                  color: "#FFFFFF",
+                  "&:hover": {
+                    backgroundColor: "#007F5B",
+                  },
+                }}
+              >
+                {isLoading ? "Logging In..." : "Login"}
+              </LoadingButton>
+            </Grid>
+          </Grid>
         </form>
-      </div>
-    </div>
+
+        <Typography
+          align="center"
+          sx={{
+            color: "#1C252E",
+            fontSize: "0.875rem",
+          }}
+        >
+          Don't have an account?{" "}
+          <Typography
+            component="span"
+            sx={{
+              color: "#00A76F",
+              cursor: "pointer",
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            }}
+            onClick={() => navigate("/register")}
+          >
+            Sign Up
+          </Typography>
+        </Typography>
+        <Typography
+        fontSize={13}
+          align="center"
+          sx={{
+            color: "#00A76F",
+            cursor: "pointer",
+            "&:hover": {
+              textDecoration: "underline",
+            },
+          }}
+          onClick={() => navigate("/forgot-password")}
+        >
+            Forget Password?
+        </Typography>
+      </Paper>
+    </Box>
   );
 };
 

@@ -2,15 +2,19 @@ import { toast } from "react-toastify";
 import axios from "./network";
 
 // Get all products
-export const getProducts = async (name = "", gender = "") => {
+export const getProducts = async (
+  name = "",
+  gender = "",
+  page = 1,
+  limit = 10
+) => {
   try {
     const response = await axios.get("/products", {
-      params: { name, gender },
+      params: { name, gender, page, limit },
     });
     return response.data;
   } catch (error) {
     toast.error("Error fetching products");
-    throw error;
   }
 };
 
@@ -26,7 +30,6 @@ export const getProductsByCategory = async (
     return response.data;
   } catch (error) {
     toast.error("Error fetching products by category");
-    throw error;
   }
 };
 // Get product by ID
@@ -36,7 +39,6 @@ export const getProductById = async (productId) => {
     return response.data;
   } catch (error) {
     toast.error("Error fetching product by ID");
-    throw error;
   }
 };
 
@@ -47,7 +49,6 @@ export const createProduct = async (productData) => {
     return response.data;
   } catch (error) {
     toast.error("Error creating product");
-    throw error;
   }
 };
 
@@ -57,7 +58,6 @@ export const updateProduct = async (id, productData) => {
     return response.data;
   } catch (error) {
     toast.error("Error updated product");
-    throw error;
   }
 };
 
@@ -68,6 +68,5 @@ export const deleteProduct = async (productId) => {
     return response.data;
   } catch (error) {
     toast.error("Error deleting product");
-    throw error;
   }
 };

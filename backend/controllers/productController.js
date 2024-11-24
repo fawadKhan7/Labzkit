@@ -1,6 +1,12 @@
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
-// Create a new product
+const DOMPurify = require("dompurify");
+const { JSDOM } = require("jsdom");
+
+// Initialize DOMPurify with JSDOM for server-side use
+const window = new JSDOM("").window;
+const DOMPurifyInstance = DOMPurify(window);
+
 const createProduct = async (req, res) => {
   const {
     name,
@@ -14,28 +20,32 @@ const createProduct = async (req, res) => {
     description,
   } = req.body;
 
-  const image = req.file?.filename || "";
+  const images = req.files?.map((file) => file.filename) || [];
+
   try {
     const categoryDoc = await Category.findById(category);
     if (!categoryDoc) {
       return res.status(400).json({ message: "Category does not exist" });
     }
 
-    // Ensure that size and color are arrays if they come as strings
+    // Ensure size and color are arrays
     const sizeArray = Array.isArray(size) ? size : JSON.parse(size);
-    const colorArray = Array.isArray(color) ? color : JSON.parse(color);
+    const colorArray = Array.isArray(color) ? size : JSON.parse(color);
+
+    // Sanitize description
+    const sanitizedDescription = DOMPurifyInstance.sanitize(description);
 
     const product = new Product({
       name,
-      category: categoryDoc._id, // Store the category's ObjectId
+      category: categoryDoc._id,
       price,
       quantity,
       discountedPrice,
       size: sizeArray,
       color: colorArray,
       gender,
-      description,
-      image, // Store the image URL in the database
+      description: sanitizedDescription,
+      images,
     });
 
     await product.save();
@@ -48,16 +58,40 @@ const createProduct = async (req, res) => {
       .json({ message: "Error creating product", error: error.message });
   }
 };
-// Get all products
 const getAllProducts = async (req, res) => {
   try {
-    const { name, gender } = req.query;
+    const { name, gender, page = 1, limit = 10 } = req.query;
     const filter = {};
+
+    // Apply filters if query parameters are provided
     if (name) filter.name = new RegExp(name, "i");
     if (gender) filter.gender = gender;
 
-    const products = await Product.find(filter).populate("category");
-    res.status(200).json(products);
+    // Convert page and limit to numbers
+    const pageNumber = parseInt(page, 10);
+    const pageLimit = parseInt(limit, 10);
+
+    // Calculate skip value for pagination
+    const skip = (pageNumber - 1) * pageLimit;
+
+    // Fetch products with pagination and populate category
+    const products = await Product.find(filter)
+      .skip(skip)
+      .limit(pageLimit)
+      .populate("category");
+
+    // Get total count of products to calculate the total pages
+    const totalProducts = await Product.countDocuments(filter);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalProducts / pageLimit);
+
+    res.status(200).json({
+      products,
+      currentPage: pageNumber,
+      totalPages,
+      totalProducts,
+    });
   } catch (error) {
     res
       .status(500)
@@ -125,52 +159,6 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-// Update an existing product by ID
-// const updateProduct = async (req, res) => {
-//   const { id } = req.params;
-//   const { name, category, price, quantity, size, color, gender, description } =
-//     req.body;
-//   const image = req.file?.filename; // Get new image if uploaded
-//   try {
-//     const categoryDoc = await Category.findById(category);
-//     if (!categoryDoc) {
-//       return res.status(400).json({ message: "Category does not exist" });
-//     }
-
-//     // Ensure size and color are arrays if passed as JSON strings
-//     const sizeArray = Array.isArray(size) ? size : JSON.parse(size);
-//     const colorArray = Array.isArray(color) ? color : JSON.parse(color);
-
-//     // Update the product
-//     const updatedProduct = await Product.findByIdAndUpdate(
-//       id,
-//       {
-//         name,
-//         category: categoryDoc._id,
-//         price,
-//         quantity,
-//         size: sizeArray,
-//         color: colorArray,
-//         gender,
-//         description,
-//         ...(image && { image }), // Only update image if new file is provided
-//       },
-//       { new: true, runValidators: true } // Options: return updated product & run schema validators
-//     ).populate("category"); // Populate category in the response
-
-//     if (!updatedProduct) {
-//       return res.status(404).json({ message: "Product not found" });
-//     }
-
-//     res.status(200).json(updatedProduct);
-//   } catch (error) {
-//     console.log(error);
-//     res
-//       .status(500)
-//       .json({ message: "Error updating product", error: error.message });
-//   }
-// };
-
 const updateProduct = async (req, res) => {
   const { id } = req.params;
   const {
@@ -183,17 +171,15 @@ const updateProduct = async (req, res) => {
     color,
     gender,
     description,
-    image,
   } = req.body;
 
   try {
-    // Find the product by ID
+    let newImages;
     const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Update fields conditionally based on provided data
     const updateData = {};
 
     if (name) updateData.name = name;
@@ -212,9 +198,18 @@ const updateProduct = async (req, res) => {
       updateData.color = Array.isArray(color) ? color : JSON.parse(color);
     if (gender) updateData.gender = gender;
     if (description) updateData.description = description;
-    if (image) updateData.image = req.file?.filename; // Assuming the image is uploaded and available
+    if (req.files.length > 0) {
+      newImages = req.files?.map((file) => file.filename) || [];
+      updateData.images = [...product.images, ...newImages]; // Merge new images with existing ones
+    } else {
+      newImages = req.body.images;
+      if (!Array.isArray(newImages)) {
+        newImages = [];
+      }
+      updateData.images = newImages;
+    }
 
-    // Update the product with only the fields provided
+    // Update the product in the database
     const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,

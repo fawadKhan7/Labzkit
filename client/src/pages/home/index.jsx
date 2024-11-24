@@ -4,9 +4,8 @@ import { getCategories } from "../../api/categories";
 import { getImageUrl } from "../../utils/functions";
 import { getImages } from "../../api/images";
 import OfferCrousel from "../../components/OfferCrousel";
-import HeroBg from "../../assets/hero-bg.png";
-import { FiSearch } from "react-icons/fi";
 import SearchInput from "../../components/Search";
+import Loader from "../../components/Loader";
 
 const HomePage = () => {
   const [categoriesData, setCategoriesData] = useState([]);
@@ -74,16 +73,9 @@ const HomePage = () => {
             />
         </div>{" "}
         {isLoading ? (
-          <div className="w-full flex justify-center items-center py-20">
-            <div
-              className="spinner-border animate-spin inline-block w-16 h-16 border-4 rounded-full border-blue-600"
-              role="status"
-            >
-              <span className="sr-only">Loading...</span>
-            </div>
-          </div>
+          <Loader/>
         ) : categoriesData.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="w-[80%] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-10">
             {categoriesData.map((category) => (
               <CategoryBox
                 key={category?._id}

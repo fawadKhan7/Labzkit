@@ -240,7 +240,6 @@ const sendOrderConfirmation = async (order) => {
             </tfoot>
           </table>
       
-          <p>We hope you enjoy your purchase! If you have any questions, feel free to reach out to our support team.</p>
         </div>
       </body>
       </html>

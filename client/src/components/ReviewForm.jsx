@@ -1,6 +1,12 @@
-// ReviewForm.js
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import {
+  Box,
+  Typography,
+  Button,
+  TextareaAutosize,
+  Rating,
+} from "@mui/material";
 
 const ReviewForm = ({ productId, onSubmit }) => {
   const [rating, setRating] = useState(0); // Rating state (1-5)
@@ -30,49 +36,72 @@ const ReviewForm = ({ productId, onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmitReview} className="space-y-4">
-      <h3 className="text-lg font-medium text-gray-800 dark:text-[#cbd5e1] mb-2">
+    <Box
+      sx={{
+        maxWidth: 500,
+        margin: "auto",
+        padding: 3,
+        borderRadius: 2,
+        backgroundColor: "#FFFFFF",
+        boxShadow: 2,
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
+      }}
+    >
+      <Typography variant="h6" sx={{ fontWeight: "bold", textAlign: "center" }}>
         Add Your Review
-      </h3>
+      </Typography>
 
       {/* Rating Section */}
-      <div className="flex gap-2">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => handleRatingChange(star)}
-            className={`text-2xl ${
-              rating >= star ? "text-yellow-500" : "text-gray-300"
-            }`}
-          >
-            ★
-          </button>
-        ))}
-      </div>
+      <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+        <Rating
+          value={rating}
+          onChange={(event, newValue) => handleRatingChange(newValue)}
+          size="large"
+          sx={{ color: "#FFD700" }}
+        />
+      </Box>
 
       {/* Review Text Section */}
-      <textarea
+      <TextareaAutosize
+        minRows={4}
         value={reviewText}
         onChange={handleReviewTextChange}
         placeholder="Write your review here..."
-        className="w-full resize-none p-3 rounded-lg border border-gray-300 dark:border-[#4b5563] dark:bg-[#374151] dark:text-[#d1d5db] focus:outline-none focus:ring-2 focus:ring-blue-500"
-        rows="4"
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "8px",
+          border: "1px solid #D1D5DB",
+          backgroundColor: "#F9FAFB",
+          fontSize: "16px",
+          color: "#1F2937",
+          resize: "none",
+        }}
       />
 
       {/* Submit Button */}
-      <button
-        type="submit"
+      <Button
+        onClick={handleSubmitReview}
         disabled={isSubmitting}
-        className={`w-full py-3 mt-4 text-lg font-semibold rounded-md transition-all ${
-          isSubmitting
-            ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-            : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-[#3b82f6] dark:hover:bg-[#2563eb]"
-        }`}
+        variant="contained"
+        sx={{
+          marginTop: 2,
+          padding: "12px",
+          color: "#FFFFFF",
+          fontWeight: "bold",
+          backgroundColor: "#00A76F",
+          color: "#FFFFFF",
+          "&:hover": {
+            backgroundColor: "#007F5B",
+          },
+          width: "100%",
+        }}
       >
         {isSubmitting ? "Submitting..." : "Submit Review"}
-      </button>
-    </form>
+      </Button>
+    </Box>
   );
 };
 

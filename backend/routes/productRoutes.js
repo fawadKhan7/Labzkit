@@ -11,7 +11,7 @@ const upload = require("../config/multerConfig");
 const router = express.Router();
 
 // POST route to create a new product
-router.post("/", upload.single("image"), createProduct);
+router.post("/", upload.array("images", 5), createProduct);
 
 router.get("/category/:categoryId", getAllProductsByCategory);
 
@@ -25,6 +25,6 @@ router.get("/:id", getProductById);
 router.delete("/:id", deleteProduct);
 
 // PUT Updatedelete a product by ID
-router.put("/update/:id", upload.single("image"), updateProduct);
+router.put("/update/:id", upload.array("images", 5), updateProduct);
 
 module.exports = router;

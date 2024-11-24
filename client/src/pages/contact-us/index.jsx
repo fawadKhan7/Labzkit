@@ -1,6 +1,6 @@
 import React from "react";
-import { PhoneFilled } from "@ant-design/icons";
-import { BsChat, BsSendArrowDown, BsSendArrowUp } from "react-icons/bs";
+import { WhatsAppOutlined } from "@ant-design/icons";
+import { BsChat, BsSendArrowUp } from "react-icons/bs";
 
 const ContactUs = () => {
   return (
@@ -12,15 +12,14 @@ const ContactUs = () => {
         owner or a large organization, we're here to help you find the perfect
         uniforms and workwear for your needs.
       </p>
-      <div className="bg-[#eff5ec] p-6 w-full md:w-1/2 mx-auto flex flex-col items-center gap-4">
+      <div className="bg-[#eff5ec] p-6 w-full md:w-fit mx-auto flex flex-col items-center gap-4">
         <div className="flex items-center gap-2 text-xl">
-          <PhoneFilled className="transform rotate-90" />
-          <p className="font-semibold">Call Us</p>
+          <WhatsAppOutlined />
+          <p className="font-semibold">Contact us via call or Whatsapp!</p>
         </div>
-        <p>Our Friendly team is here to help.</p>
         <div className="flex items-center gap-4">
           <p>Online</p>
-          <p className="text-green-500 font-bold">(61) 469248696</p>
+          <p className="text-green-500 font-bold">(+92) 3112752474</p>
         </div>
       </div>
 
@@ -52,7 +51,7 @@ const ContactUs = () => {
         </p>
         <div className="flex items-center gap-4 text-sm">
           <p className="text-green-500 font-bold ">
-            2 MATTAMBER RD WOLLERT VIC, Melbourne, VIC
+          P.O Box 255 Mernda VIC 3754
           </p>
         </div>
       </div>

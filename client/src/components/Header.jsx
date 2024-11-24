@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { useCart } from "../context/CartContext"; // Import the useCart hook
 import { useUser } from "../context/UserContext";
 import { useEffect, useRef } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { BiMenu } from "react-icons/bi";
-import { FaShoppingCart, FaSignOutAlt, FaUserAlt } from "react-icons/fa";
-import BgGradient from "../assets/header-bg.png";
+import { FaShoppingCart, FaUserAlt } from "react-icons/fa";
 import CategoryDropdown from "./Dropdown";
 import { getCategories } from "../api/categories";
 
@@ -39,7 +38,7 @@ const Header = () => {
       <div className="flex flex-wrap items-center justify-between gap-5 w-full">
         {/* Logo */}
         <NavLink to="/">
-          <div className="bg-black w-36 py-2 px-4 text-white flex justify-center font-barrio">LabzKit</div>
+          <div className="bg-black w-fit py-2 px-1 md:px-4 text-white flex justify-center font-barrio">LabzKit</div>
         </NavLink>
 
         {/* Navigation */}
@@ -71,7 +70,7 @@ const Header = () => {
             <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-3 px-3">
               <NavLink
                 to="/"
-                className="hover:text-blue-500 text-gray-500 text-[15px]"
+                className="hover:text-blue-500 text-gray-500 text-[16px]"
               >
                 Home
               </NavLink>
@@ -79,7 +78,7 @@ const Header = () => {
             <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-3 px-3">
               <NavLink
                 to="/about-us"
-                className="hover:text-blue-500 text-gray-500 text-[15px]"
+                className="hover:text-blue-500 text-gray-500 text-[16px]"
               >
                 About
               </NavLink>
@@ -87,7 +86,7 @@ const Header = () => {
             <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-3 px-3">
               <NavLink
                 to="/contact-us"
-                className="hover:text-blue-500 text-gray-500 text-[15px]"
+                className="hover:text-blue-500 text-gray-500 text-[16px]"
               >
                 Contact
               </NavLink>

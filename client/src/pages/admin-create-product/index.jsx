@@ -6,8 +6,9 @@ import {
   availableColors,
   genders,
 } from "../../data/selectFieldsData";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ProductForm from "../../components/Forms/ProductForm";
 
 const ProductCreate = () => {
   const navigate = useNavigate();
@@ -27,9 +28,8 @@ const ProductCreate = () => {
   const [category, setCategory] = useState({
     name: "",
   });
-  const [productImageFile, setProductImageFile] = useState(null);
+  const [productImageFiles, setProductImageFiles] = useState([]);
   const [categoryImageFile, setCategoryImageFile] = useState(null);
-  const [productImagePreview, setProductImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,6 +38,10 @@ const ProductCreate = () => {
       return;
     }
     setProduct({ ...product, [name]: value });
+  };
+
+  const handleDescriptionChange = (value) => {
+    setProduct({ ...product, description: value });
   };
 
   const handleSizeChange = (size) => {
@@ -63,14 +67,22 @@ const ProductCreate = () => {
     }));
   };
 
-  const handleProductImageChange = (e) => {
-    const file = e.target.files[0];
-    setProductImageFile(file);
-    setProductImagePreview(URL.createObjectURL(file));
+  const handleProductImageChange = (event) => {
+    const files = event.target.files;
+    if (files) {
+      if (productImageFiles.length + files.length <= 5) {
+        setProductImageFiles((prevFiles) => [...prevFiles, ...files]);
+      } else {
+        toast.error("You can only upload a maximum of 5 images.");
+      }
+    }
   };
-
   const handleCategoryImageChange = (e) => {
     const file = e.target.files[0];
+    if (file && !file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file");
+      return;
+    }
     setCategoryImageFile(file);
   };
 
@@ -99,24 +111,14 @@ const ProductCreate = () => {
     }
   };
 
+  const removeImage = (index) => {
+    setProductImageFiles((prevFiles) =>
+      prevFiles.filter((_, i) => i !== index)
+    );
+  };
+
   const handleSubmitProduct = async (e) => {
     e.preventDefault();
-
-    const validationErrors = [];
-
-    if (!product.name) validationErrors.push("Product name is required");
-    if (!product.quantity)
-      validationErrors.push("Product quantity is required");
-    if (!product.gender) validationErrors.push("Product gender is required");
-    if (!product.category)
-      validationErrors.push("Product category is required");
-    if (!product.price) validationErrors.push("Product price is required");
-    if (!product.size) validationErrors.push("Product size is required");
-
-    if (validationErrors.length > 0) {
-      validationErrors.forEach((error) => toast.error(error));
-      return;
-    }
 
     const formData = new FormData();
     formData.append("name", product.name);
@@ -124,23 +126,62 @@ const ProductCreate = () => {
     formData.append("price", product.price);
     formData.append("discountedPrice", product.discountedPrice);
     formData.append("quantity", product.quantity);
-    formData.append("size", JSON.stringify(product.size)); // Convert size array to JSON string
+    formData.append("size", JSON.stringify(product.size));
     formData.append("color", JSON.stringify(product.color));
     formData.append("gender", product.gender);
     formData.append("description", product.description);
-    if (productImageFile) {
-      formData.append("image", productImageFile);
+
+    productImageFiles.forEach((file) => {
+      formData.append("images", file); // Append each file
+    });
+
+    if (!product.name) {
+      toast.error("Product name is required");
+      return;
+    }
+    if (!product.category) {
+      toast.error("Product category is required");
+      return;
+    }
+    if (!product.price) {
+      toast.error("Product price is required");
+      return;
+    }
+    if (!product.quantity) {
+      toast.error("Product quantity is required");
+      return;
+    }
+    if (!product.size || product.size.length === 0) {
+      toast.error("Product size is required");
+      return;
+    }
+    if (!product.color || product.color.length === 0) {
+      toast.error("Product color is required");
+      return;
+    }
+    if (!product.gender) {
+      toast.error("Product gender is required");
+      return;
+    }
+    if (!product.description) {
+      toast.error("Product description is required");
+      return;
+    }
+    if (productImageFiles.length === 0) {
+      toast.error("At least one product image is required");
+      return;
     }
     setIsLoading(true);
     try {
       const createdProduct = await createProduct(formData);
       setProduct({});
+      setProductImageFiles([]);
       toast.success("Product Created Successfully");
       navigate("/admin/products");
     } catch (error) {
       toast.error("Product creation failed");
     } finally {
-      setIsLoading(true);
+      setIsLoading(false);
     }
   };
 
@@ -155,7 +196,12 @@ const ProductCreate = () => {
   useEffect(() => {
     fetchCategories();
   }, [isProductForm]);
-
+  const location = useLocation();
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const selectedTab = searchParams.get("tab");
+    setIsProductForm(selectedTab === "products");
+  }, []);
   return (
     <div className="p-8 max-w-4xl m-auto bg-white dark:bg-DarkPrimary dark:text-darkText shadow-lg rounded-lg border border-gray-200">
       <h2 className="text-3xl font-semibold mb-8 text-center text-gray-800 dark:text-darkText">
@@ -175,196 +221,20 @@ const ProductCreate = () => {
         className="flex flex-col items-center gap-8"
       >
         {isProductForm ? (
-          <>
-            <div className="w-full sm:w-1/3 flex flex-col  items-center">
-              <div className="w-full h-56 mb-4 border border-gray-300 rounded-md overflow-hidden shadow-sm flex items-center justify-center">
-                {productImagePreview ? (
-                  <img
-                    src={productImagePreview}
-                    alt="Product Preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-gray-500 dark:text-darkText text-lg">
-                    Product Image
-                  </span>
-                )}
-              </div>
-              <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                Product Image:
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleProductImageChange}
-                className="p-2 w-full text-sm border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-              />
-            </div>
-            <div className="w-full sm:w-2/3 flex flex-col space-y-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Product Name:
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={product.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter product name"
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-                />
-              </div>
-
-              {/* Category */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Category:
-                </label>
-                <select
-                  name="category"
-                  value={product.category}
-                  onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-                >
-                  <option value="">Select Category</option>
-                  {categories.map((cat) => (
-                    <option
-                      key={cat?.value}
-                      value={cat?.value}
-                      className="text-black"
-                    >
-                      {cat?.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Price */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Price:
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={product.price}
-                  onChange={handleInputChange}
-                  placeholder="Enter price"
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-                />
-              </div>
-              {/*Discount Price */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Discount Price:
-                </label>
-                <input
-                  type="number"
-                  name="discountedPrice"
-                  value={product.discountedPrice}
-                  onChange={handleInputChange}
-                  placeholder="Enter Discount Price"
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-                />
-              </div>
-
-              {/* Quantity */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Quantity:
-                </label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={product.quantity}
-                  onChange={handleInputChange}
-                  placeholder="Enter quantity"
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-                />
-              </div>
-
-              {/* Size Selection */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Size:
-                </label>
-                <div className="flex gap-4">
-                  {availableSizes.map((size) => (
-                    <label
-                      key={size}
-                      className="flex items-center text-gray-700 dark:text-darkText"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={product.size.includes(size)}
-                        onChange={() => handleSizeChange(size)}
-                        className="form-checkbox h-5 w-5 text-blue-600 mr-2"
-                      />
-                      {size}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Color Selection */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Color:
-                </label>
-                <div className="flex gap-4">
-                  {availableColors.map((color) => (
-                    <label
-                      key={color}
-                      className="flex items-center text-gray-700 dark:text-darkText"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={product.color.includes(color)}
-                        onChange={() => handleColorChange(color)}
-                        className="form-checkbox h-5 w-5 text-blue-600 mr-2 "
-                      />
-                      {color}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Gender Selection */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Gender:
-                </label>
-                <select
-                  name="gender"
-                  value={product.gender}
-                  onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-                >
-                  <option value="">Select Gender</option>
-                  {genders.map((gen) => (
-                    <option key={gen} value={gen} className="text-black">
-                      {gen}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-600 dark:text-darkText mb-2">
-                  Product Description:
-                </label>
-                <textarea
-                  name="description"
-                  value={product.description}
-                  onChange={handleInputChange}
-                  placeholder="Enter product description"
-                  rows="4"
-                  className="w-full p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:border-blue-500 transition duration-200"
-                />
-              </div>
-            </div>
-          </>
+          <ProductForm
+            product={product}
+            categories={categories}
+            genders={genders}
+            availableSizes={availableSizes}
+            availableColors={availableColors}
+            handleInputChange={handleInputChange}
+            handleProductImageChange={handleProductImageChange}
+            handleSizeChange={handleSizeChange}
+            handleColorChange={handleColorChange}
+            productImageFiles={productImageFiles}
+            removeImage={removeImage}
+            handleDescriptionChange={handleDescriptionChange}
+          />
         ) : (
           <div className="w-full flex flex-col gap-2">
             {/* Category Name */}

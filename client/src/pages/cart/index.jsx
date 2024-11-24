@@ -3,6 +3,23 @@ import { useCart } from "../../context/CartContext";
 import { createOrder } from "../../api/orders";
 import { getImageUrl, imagesProduct } from "../../utils/functions";
 import { toast } from "react-toastify";
+import EmptyContent from "../../components/EmptyCart";
+import {
+  Avatar,
+  Button,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { Box, Stack, useMediaQuery } from "@mui/system";
+import { GridDeleteIcon } from "@mui/x-data-grid";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const Cart = () => {
   const { cart, clearCart, removeItem } = useCart();
@@ -33,95 +50,153 @@ const Cart = () => {
     }
   };
 
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
+
   return (
-    <div className="p-8 bg-gray-100 dark:bg-[#1f2937] min-h-screen">
-      <div className="flex items-center space-x-4 mb-6">
-        <div className="flex-grow border-t border-1 border-black dark:border-white"></div>
-        <h1 className="text-gray-900 dark:text-darkText text-lg">Your Cart</h1>
-        <div className="flex-grow border-t border-1 border-black dark:border-white"></div>
-      </div>
-
+    <div className="p-8 min-h-screen">
       {cartItems.length > 0 ? (
-        <div className="overflow-x-auto ">
-          <table className="min-w-full bg-white border border-gray-300">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 border-b">Image</th>
-                <th className="px-4 py-2 border-b">Product</th>
-                <th className="px-4 py-2 border-b">Size</th>
-                <th className="px-4 py-2 border-b">Color</th>
-                <th className="px-4 py-2 border-b">Price</th>
-                <th className="px-4 py-2 border-b">Quantity</th>
-                <th className="px-4 py-2 border-b">Total</th>
-                <th className="px-4 py-2 border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cartItems.map((item) => (
-                <tr key={item.id} className="text-center">
-                  <td className="px-4 py-2 border-b">
-                    <img
-                      src={
-                        item.image
-                          ? getImageUrl(item.image)
-                          : imagesProduct[item.gender]
-                      }
-                      alt={item.name}
-                      className="w-16 h-16 object-cover mx-auto"
-                    />
-                  </td>
-                  <td className="px-4 py-2 border-b">{item.name}</td>
-                  <td className="px-4 py-2 border-b">{item.size}</td>
-                  <td className="px-4 py-2 border-b">{item.color}</td>
-                  <td className="px-4 py-2 border-b">${item.price}</td>
-                  <td className="px-4 py-2 border-b">{item.quantity}</td>
-                  <td className="px-4 py-2 border-b">
-                    ${item.price * item.quantity}
-                  </td>
-                  <td className="px-4 py-2 border-b">
-                    <button
-                      onClick={() => removeItem(item._id)}
-                      className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 transition"
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="dark:text-white text-center text-xl">
-          Your cart is empty.
-        </p>
-      )}
+        <Box
+          display="flex"
+          flexDirection={isMobile ? "column" : "row"}
+          justifyContent="space-between"
+          gap={3}
+          p={2}
+        >
+          {/* Cart Items Table */}
+          <Paper
+            elevation={3}
+            sx={{
+              flex: 1,
+              p: 3,
+              boxShadow: 3,
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Cart Items
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Product</TableCell>
+                    <TableCell>Price</TableCell>
+                    <TableCell>Quantity</TableCell>
+                    <TableCell>Total</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {cartItems.map((item) => (
+                    <TableRow key={item._id}>
+                      <TableCell sx={{ display: "flex", alignItems: "center" }}>
+                        <Avatar
+                          variant="rounded"
+                          alt={item?.name}
+                          src={
+                            item?.images && item?.images?.length > 0
+                              ? getImageUrl(item?.images[0])
+                              : imagesProduct[item?.gender]
+                          }
+                          sx={{ width: 64, height: 64, mr: 2 }}
+                        />
+                        <Stack spacing={0.5}>
+                          <Typography
+                            noWrap
+                            variant="subtitle2"
+                            sx={{ maxWidth: 240 }}
+                          >
+                            {item.name}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "text.secondary" }}
+                          >
+                            {item.color}
+                          </Typography>
+                        </Stack>
+                      </TableCell>
+                      <TableCell>${item.price}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>${item.price * item.quantity}</TableCell>
+                      <TableCell align="right">
+                        <IconButton onClick={() => removeItem(item._id)}>
+                          <GridDeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
 
-      {cartItems.length > 0 && (
-        <div className="flex flex-col items-end mt-6">
-          <h3 className=" text-lg font-semibold dark:text-white">
-            Total: ${calculateTotal()}
-          </h3>
-          <div className="flex items-center">
-            <button
-              disabled={loading}
-              onClick={handleCompleteOrder}
-              className={`mt-4 py-2 px-4 rounded-md focus:outline-none transition-all duration-300 ease-in-out ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-              }`}
+          {/* Order Summary */}
+          <Paper
+            elevation={3}
+            sx={{
+              flex: 0.35,
+              p: 3,
+              boxShadow: 3,
+              borderRadius: 2,
+              minWidth: 280,
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Order Summary
+            </Typography>
+            <Box display="flex" justifyContent="space-between" mb={2}>
+              <Typography>Total Items</Typography>
+              <Typography>{cartItems.length}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" mb={2}>
+              <Typography>Total Price</Typography>
+              <Typography>${calculateTotal()}</Typography>
+            </Box>
+            <Box
+              spacing={2}
+              display={"flex"}
+              flexDirection={isMobile ? "column" : "row"}
+              justifyContent={"space-between"}
+              alignItems="center"
+              gap={1}
+              mt={3}
             >
-              {loading ? "Completing Order..." : "Complete Order"}
-            </button>
-            <button
-              onClick={clearCart}
-              className="mt-4 ml-4 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
-            >
-              Clear Cart
-            </button>
-          </div>
-        </div>
+              <LoadingButton
+                fullWidth={isMobile}
+                size="small"
+                variant="contained"
+                loading={loading}
+                disabled={loading}
+                onClick={handleCompleteOrder}
+                sx={{
+                  backgroundColor: "#00A76F",
+                  color: "#FFFFFF",
+                  "&:hover": {
+                    backgroundColor: "#007F5B",
+                  },
+                }}
+              >
+                {loading ? "Completing Order..." : "Complete Order"}
+              </LoadingButton>
+              <Button
+                variant="contained"
+                color="error"
+                size="small"
+                onClick={clearCart}
+                fullWidth={isMobile}
+              >
+                Clear Cart
+              </Button>
+            </Box>
+          </Paper>
+        </Box>
+      ) : (
+        <EmptyContent
+          title="Cart is Empty!"
+          description="Look like you have no items in your shopping cart."
+          sx={{ pt: 5, pb: 10 }}
+        />
       )}
     </div>
   );

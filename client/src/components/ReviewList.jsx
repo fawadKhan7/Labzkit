@@ -1,47 +1,66 @@
 import React from "react";
 import { useUser } from "../context/UserContext";
+import { Stack, Box, Typography, Rating, IconButton } from "@mui/material";
+import { Delete as DeleteIcon } from "@mui/icons-material";
 
 const ReviewList = ({ reviews, onDelete }) => {
   const { isAdmin } = useUser();
+
   return (
-    <div className="mt-4 max-h-64 overflow-y-scroll space-y-2">
+    <Box
+      className="mt-4"
+      sx={{
+        maxHeight: "calc(100vh - 200px)", // Adjust according to the layout
+        overflowY: "auto",
+        '&::-webkit-scrollbar': { display: 'none' }, // Hide the scrollbar for Webkit browsers
+      }}
+    >
       {reviews.length === 0 ? (
-        <p className="text-center text-gray-500 text-xs">
+        <Typography variant="body2" align="center" sx={{ color: 'gray', fontStyle: 'italic' }}>
           No reviews yet. Be the first to review this product!
-        </p>
+        </Typography>
       ) : (
         reviews.map((review) => (
-          <div
+          <Box
             key={review._id}
-            className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all"
+            sx={{
+              p: 3,
+              mb: 2,
+              backgroundColor: 'white',
+              border: '1px solid #E0E0E0',
+              borderRadius: 2,
+              boxShadow: 2,
+              '&:hover': { boxShadow: 3 },
+            }}
           >
-            <div className="flex justify-between items-center mb-1">
-              <h4 className="text-sm font-semibold text-gray-800">
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                 {`${review.user?.firstName} ${review.user?.lastName}`}
-              </h4>
+              </Typography>
+
               {isAdmin && (
-                <button
+                <IconButton
                   onClick={() => onDelete(review._id)}
-                  className="text-red-600 hover:text-red-700 font-medium transition-all text-xs"
+                  color="error"
+                  size="small"
+                  sx={{ padding: 0 }}
                 >
-                  Delete
-                </button>
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               )}
-            </div>
-            <div className="flex items-center mb-1">
-              <span className="font-semibold text-gray-700 text-xs">
-                Rating:
-              </span>
-              <span className="ml-1 text-yellow-500 text-xs">
-                {"★".repeat(review.rating)}
-                {"☆".repeat(5 - review.rating)}
-              </span>
-            </div>
-            <p className="text-gray-600 text-xs">{review.reviewText}</p>
-          </div>
+            </Stack>
+
+            <Stack spacing={1} mt={2}>
+              <Rating value={review.rating} precision={0.1} readOnly size="small" />
+
+              <Typography variant="body2" sx={{  color: 'text.secondary' }}>
+                {review.reviewText}
+              </Typography>
+            </Stack>
+          </Box>
         ))
       )}
-    </div>
+    </Box>
   );
 };
 

@@ -1,26 +1,52 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Use the hook for navigation
-import { getProducts, deleteProduct, updateProduct } from "../../api/products"; // Ensure deleteProduct is in your API
-import { getCategories, deleteCategory } from "../../api/categories"; // Make sure deleteCategory API is imported
+import { useNavigate } from "react-router-dom";
+import { getProducts, deleteProduct, updateProduct } from "../../api/products";
+import { getCategories, deleteCategory } from "../../api/categories";
 import { getImageUrl, imagesProduct } from "../../utils/functions";
 import ProductUpdateModal from "../../components/EditProductModal";
 import { toast } from "react-toastify";
-import { DeleteColumnOutlined } from "@ant-design/icons";
-import { FiDelete } from "react-icons/fi";
-import { FaDeleteLeft } from "react-icons/fa6";
-import { BiPen, BiPencil, BiTrash } from "react-icons/bi";
+import { DataGrid, GridDeleteIcon } from "@mui/x-data-grid";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import { genders } from "../../data/selectFieldsData";
 import SearchInput from "../../components/Search";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { Box, Grid } from "@mui/system";
+import { BiEdit } from "react-icons/bi";
 
 const AdminProductList = () => {
   const navigate = useNavigate();
   const [productsData, setProductData] = useState([]);
-  const [categoriesData, setCategoriesData] = useState([]); // Store categories data
+  const [categoriesData, setCategoriesData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
-  const [selectedTab, setSelectedTab] = useState("products"); // Track selected tab ('products' or 'categories')
+  const [selectedTab, setSelectedTab] = useState("products");
   const [searchTerm, setSearchTerm] = useState("");
   const [genderFilter, setGenderFilter] = useState("");
+
+  const [anchorEl, setAnchorEl] = useState({}); // Track the anchorEl for each product
+
+  const handleMenuOpen = (event, productId) => {
+    setAnchorEl((prev) => ({ ...prev, [productId]: event.currentTarget }));
+  };
+
+  const handleMenuClose = (productId) => {
+    setAnchorEl((prev) => {
+      const updatedAnchorEl = { ...prev };
+      delete updatedAnchorEl[productId]; // Remove the specific anchorEl when closing
+      return updatedAnchorEl;
+    });
+  };
+
+  const openMenu = (productId) => Boolean(anchorEl[productId]);
 
   const openModal = (productId) => {
     setSelectedProductId(productId);
@@ -32,14 +58,14 @@ const AdminProductList = () => {
     setIsModalOpen(false);
   };
 
-  const handleCreateProduct = () => {
-    navigate("/admin/products/create");
+  const handleCreateProduct = (selectedTab) => {
+    navigate(`/admin/products/create?tab=${selectedTab}`);
   };
 
   const handleDeleteProduct = async (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       await deleteProduct(productId);
-      fetchProducts(); // Refresh the product list after deletion
+      fetchProducts();
     }
   };
 
@@ -53,11 +79,11 @@ const AdminProductList = () => {
 
   const fetchProducts = async () => {
     const response = await getProducts(searchTerm, genderFilter);
-    setProductData(response);
+    setProductData(response?.products);
   };
 
   const fetchCategories = async () => {
-    const response = await getCategories(""); // Pass empty string to get all categories
+    const response = await getCategories("");
     setCategoriesData(response);
   };
 
@@ -73,6 +99,120 @@ const AdminProductList = () => {
       toast.error("Error Updating Product");
     }
   };
+
+  const productColumns = [
+    {
+      field: "image",
+      headerName: "Image",
+      width: 120,
+      renderCell: (params) => (
+        <Box display={"flex"} alignItems={"center"} height={"100%"} p={1}>
+          <img
+            src={
+              params?.row?.images && params?.row?.images.length > 0
+                ? getImageUrl(params?.row?.images[0])
+                : imagesProduct[params.row.gender]
+            }
+            alt={params.row.name}
+            className="rounded-lg my-2 h-16 w-fit mx-auto"
+          />
+        </Box>
+      ),
+    },
+    { field: "name", headerName: "Name", width: 200 },
+    {
+      field: "category",
+      headerName: "Category",
+      width: 150,
+      renderCell: (params) => <p>{params?.row?.category?.name}</p>,
+    },
+    { field: "price", headerName: "Price", width: 120 },
+    { field: "discountedPrice", headerName: "Discount", width: 120 },
+    { field: "quantity", headerName: "Quantity", width: 80 },
+    {
+      field: "size",
+      headerName: "Size",
+      width: 150,
+      renderCell: (params) => <p>{params?.row?.size?.join(", ")}</p>,
+    },
+    {
+      field: "color",
+      headerName: "Color",
+      width: 120,
+      renderCell: (params) => (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{
+            wordWrap: "break-word", // Enable word wrap
+            whiteSpace: "normal", // Allow wrapping of long text
+            height: "100%", // Ensure Box takes full height of the row
+          }}
+        >
+          <Typography variant="body2" style={{ fontSize: 14 }}>
+            {params?.row?.color?.join(", ")}
+          </Typography>
+        </Box>
+      ),
+    },
+    { field: "gender", headerName: "Gender", width: 80 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 100,
+      renderCell: (params) => (
+        <div>
+          <IconButton
+            aria-label="actions"
+            aria-controls={
+              openMenu(params.row._id) ? "product-menu" : undefined
+            }
+            aria-haspopup="true"
+            aria-expanded={openMenu(params.row._id) ? "true" : undefined}
+            onClick={(e) => handleMenuOpen(e, params.row._id)}
+          >
+            <BsThreeDotsVertical size={15} />
+          </IconButton>
+          <Menu
+            id="product-menu"
+            anchorEl={anchorEl[params.row._id]} // Use dynamic anchorEl
+            open={openMenu(params.row._id)} // Check if the specific menu is open
+            onClose={() => handleMenuClose(params.row._id)}
+            MenuListProps={{
+              "aria-labelledby": "product-actions",
+            }}
+          >
+            <MenuItem
+              onClick={() => {
+                openModal(params.row._id);
+              }}
+              style={{ borderBottom: "1px solid #ddd", fontSize: "12px" }}
+            >
+              <BiEdit
+                fontSize={"14"}
+                style={{ marginRight: 5, color: "#fcba03" }}
+              />
+              Update
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => {
+                handleDeleteProduct(params.row._id);
+              }}
+              style={{ borderTop: "1px solid #ddd", fontSize: "12px" }}
+            >
+              <GridDeleteIcon
+                fontSize={"14"}
+                style={{ marginRight: 5, color: "red" }}
+              />
+              Delete
+            </MenuItem>
+          </Menu>
+        </div>
+      ),
+    },
+  ];
 
   useEffect(() => {
     fetchCategories();
@@ -92,7 +232,6 @@ const AdminProductList = () => {
         <div className="flex-grow border-t border-1 border-black dark:border-white"></div>
       </div>
 
-      {/* Tab buttons */}
       <div className="flex justify-center gap-6 mb-6">
         <button
           onClick={() => setSelectedTab("products")}
@@ -116,15 +255,13 @@ const AdminProductList = () => {
         </button>
       </div>
 
-      {/* Create product and offer buttons */}
       <div className="flex flex-col gap-6 mb-6">
-        {/* Top Section: Create Product and Handle Offers Buttons */}
         <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
           <button
-            onClick={handleCreateProduct}
+            onClick={() => handleCreateProduct(selectedTab)}
             className="flex-1 sm:flex-none bg-blue-500 text-white shadow-blue-300 transition-all duration-300 py-3 px-4 rounded-lg shadow-md"
           >
-            Create Product
+            {selectedTab === "products" ? "Create Product" : "Create Category"}
           </button>
 
           <button
@@ -135,10 +272,8 @@ const AdminProductList = () => {
           </button>
         </div>
 
-        {/* Conditional Section: Search and Filters */}
         {selectedTab === "products" && (
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-            {/* Search Input */}
             <div className="flex-1">
               <SearchInput
                 value={searchTerm}
@@ -147,7 +282,6 @@ const AdminProductList = () => {
               />
             </div>
 
-            {/* Gender Filter Dropdown */}
             <div className="relative w-full lg:w-48">
               <select
                 value={genderFilter}
@@ -166,105 +300,16 @@ const AdminProductList = () => {
         )}
       </div>
 
-      {/* Show products or categories based on selectedTab */}
       {selectedTab === "products" ? (
         <div className="overflow-x-auto">
-          <table className="w-full table-auto border-collapse border bg-white border-gray-300 rounded-lg">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Image
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Name
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Category
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Price
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Discount
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Quantity
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Size
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Color
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Gender
-                </th>
-                <th className="p-4 border border-gray-300 text-center font-semibold text-gray-700">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {productsData.map((product) => (
-                <tr
-                  key={product._id}
-                  className="hover:bg-gray-100 transition duration-200"
-                >
-                  <td className="p-4 border border-gray-300">
-                    <img
-                      src={
-                        product?.image
-                          ? getImageUrl(product?.image)
-                          : imagesProduct[product?.gender]
-                      }
-                      alt={product.name}
-                      className="w-20 h-20 object-cover rounded-md"
-                    />
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-800 font-medium text-center">
-                    {product.name}
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-600 text-center">
-                    {product.category?.name}
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-600 text-center">
-                    ${product.price}
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-600 text-center">
-                    ${product.discountedPrice || 0}
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-600 text-center">
-                    {product.quantity > 0 ? product.quantity : "Out Of Stock"}
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-600 text-center">
-                    {product.size.join(", ")}
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-600 text-center">
-                    {product.color.join(", ")}
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-600 text-center">
-                    {product.gender}
-                  </td>
-                  <td className="p-4 border border-gray-300 text-gray-600 text-center">
-                    <div className="flex justify-center items-center gap-4">
-                      <BiPencil
-                        color="#e3a008"
-                        size={20}
-                        className="cursor-pointer hover:scale-110 transition-transform duration-200"
-                        onClick={() => openModal(product._id)}
-                      />
-                      <BiTrash
-                        color="red"
-                        size={20}
-                        className="cursor-pointer hover:scale-110 transition-transform duration-200"
-                        onClick={() => handleDeleteProduct(product._id)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataGrid
+            rows={productsData}
+            columns={productColumns}
+            pageSize={5}
+            getRowId={(row) => row._id}
+            rowHeight={80}
+            disableSelectionOnClick
+          />
           {isModalOpen && (
             <ProductUpdateModal
               productId={selectedProductId}
@@ -275,27 +320,39 @@ const AdminProductList = () => {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-3 gap-4">
+          <Grid container spacing={4}>
             {categoriesData.map((category) => (
-              <div
-                key={category._id}
-                className="bg-white shadow rounded-md p-8 text-center"
-              >
-                <img
-                  src={getImageUrl(category?.image)}
-                  alt={category.name}
-                  className="w-36 h-36 object-contain rounded-md mb-2 mx-auto"
-                />
-                <h2 className="font-semibold text-gray-700">{category.name}</h2>
-                <button
-                  onClick={() => handleDeleteCategory(category._id)}
-                  className="mt-2 bg-red-500 text-white p-2 rounded-md"
-                >
-                  Delete
-                </button>
-              </div>
+              <Grid item xs={12} sm={6} md={4} key={category._id}>
+                <Card style={{ paddingTop: 10 }}>
+                  <CardMedia
+                    component="img"
+                    image={getImageUrl(category?.image)}
+                    alt={category.name}
+                    sx={{
+                      width: 150,
+                      height: 150,
+                      objectFit: "contain",
+                      margin: "auto",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <CardContent sx={{ textAlign: "center" }}>
+                    <h2 style={{ fontWeight: "600", color: "#4B5563" }}>
+                      {category.name}
+                    </h2>
+                    <Button
+                      onClick={() => handleDeleteCategory(category._id)}
+                      variant="contained"
+                      color="error"
+                      sx={{ mt: 2 }}
+                    >
+                      Delete
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
             ))}
-          </div>
+          </Grid>
         </div>
       )}
     </div>

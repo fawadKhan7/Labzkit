@@ -1,34 +1,68 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Box, Card, Typography, useTheme } from "@mui/material";
 
 const CategoryBox = ({ name, imageUrl, id }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleClick = () => {
     navigate(`/products/${id}`);
   };
 
   return (
-    <div
-      className="relative bg-white border-0 cursor-pointer w-full sm:w-80 md:w-64 lg:w-80 xl:w-72 overflow-hidden rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+    <Card
+      sx={{
+        position: "relative",
+        width: "100%",
+        maxWidth: 320,
+        borderRadius: 2,
+        boxShadow: 3,
+        overflow: "hidden",
+        cursor: "pointer",
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        "&:hover": {
+          transform: "scale(1.03)",
+          boxShadow: `0 12px 36px rgba(0, 0, 0, 0.1)`,
+        },
+        padding:2,
+        display:"flex",
+        flexDirection:"column",
+        gap:1
+      }}
       onClick={handleClick}
     >
-      <div className="relative w-full h-64">
+      <Box sx={{  width: "100%", height: 250 }}>
         <img
           src={imageUrl}
           alt={name}
-          className="w-full h-full object-contain transition-all duration-300 ease-in-out hover:opacity-80"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: "8px",
+            transition: "transform 0.3s ease",
+          }}
         />
+      </Box>
 
-        {/* Overlay with a gradient effect */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-50 transition-all duration-300"></div>
-      </div>
-
-      {/* Category name at the bottom with bold and modern typography */}
-      <div className="absolute bottom-4 left-4 right-4 text-white">
-        <h2 className="text-2xl font-bold text-shadow-md">{name}</h2>
-      </div>
-    </div>
+      <Box
+        sx={{
+          textAlign: "center"
+        }}
+      >
+        <Typography
+          sx={{
+            color: "#1C252E",
+            letterSpacing: "0.5px",
+            fontSize: "1.2rem",
+            textTransform: "capitalize",
+          }}
+        >
+          {name}
+        </Typography>
+      </Box>
+    </Card>
   );
 };
 

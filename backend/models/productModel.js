@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Category", // Link the product to a category via category ID
+    ref: "Category",
     required: true,
   },
   price: {
@@ -35,8 +35,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  image: {
-    type: String,
+  images: {
+    // Change to an array for multiple images
+    type: [String],
+    default: [],
   },
   quantity: {
     type: Number,

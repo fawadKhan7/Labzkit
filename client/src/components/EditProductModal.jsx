@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { getProductById, updateProduct } from "../api/products";
+import React, { useEffect, useState } from "react";
+import { getProductById } from "../api/products";
 import { getCategories } from "../api/categories";
 import {
   availableSizes,
@@ -8,6 +8,21 @@ import {
 } from "../data/selectFieldsData";
 import { getImageUrl } from "../utils/functions";
 import { toast } from "react-toastify";
+import {
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+  InputLabel,
+  FormControl,
+  IconButton,
+} from "@mui/material";
+import { Box } from "@mui/system";
+import { Delete as DeleteIcon } from "@mui/icons-material";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 function ProductUpdateModal({ productId, onClose, onSave }) {
   const [categories, setCategories] = useState([]);
@@ -23,18 +38,26 @@ function ProductUpdateModal({ productId, onClose, onSave }) {
     gender: "",
     description: "",
   });
-  const [productImageFile, setProductImageFile] = useState(null);
-  const [productImagePreview, setProductImagePreview] = useState(null);
+  const [fileList, setFileList] = useState([]); // To store selected files
 
-  // Fetch categories and product data on mount
+  // Fetch product and category data
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getProductById(productId);
         if (response) {
-          setProductData(response);
-          if (response.image)
-            setProductImagePreview(getImageUrl(response.image));
+          setProductData({ ...response, category: response?.category?._id });
+          if (response.images) {
+            setFileList(
+              response.images.map((image, index) => ({
+                uid: `image-${Date.now()}-${index}`, // Ensure unique UID for each image
+                name: image.name,
+                status: "done",
+                url: getImageUrl(image),
+                originFileObj: image, // Store the original image data
+              }))
+            );
+          }
         }
       } catch (error) {
         toast.error("Error fetching data");
@@ -66,19 +89,106 @@ function ProductUpdateModal({ productId, onClose, onSave }) {
     }));
   };
 
-  const handleProductImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProductImageFile(file);
-      setProductImagePreview(URL.createObjectURL(file));
+  const handleCancel = () => {
+    onClose(); // Close modal on cancel
+  };
+
+  const fetchCategories = async () => {
+    const response = await getCategories().then((res) => {
+      let data = res.map((elem) => ({
+        label: elem?.name,
+        value: elem?._id,
+      }));
+      setCategories(data);
+    });
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleFileChange = (e) => {
+    const newFiles = Array.from(e.target.files).map((file, index) => ({
+      uid: `file-${Date.now()}-${index}`, // Ensure unique UID for each new file
+      name: file.name,
+      status: "done",
+      url: URL.createObjectURL(file), // Temporary URL for preview
+      originFileObj: file, // Store the original file object
+    }));
+
+    // Check the number of files after adding new ones
+    if (fileList.length + newFiles.length <= 5) {
+      setFileList((prevList) => [...prevList, ...newFiles]);
+    } else {
+      toast.error("You can upload a maximum of 5 images.");
     }
   };
 
+  // To handle removal of files properly:
+  const handleRemoveImage = (file) => {
+    setFileList((prevList) => prevList.filter((elem) => elem.uid !== file.uid)); // Only remove the clicked file by UID
+  };
+  const handleDescriptionChange = (value) => {
+    setProductData((prevData) => ({
+      ...prevData,
+      description: value, // Update description field with the HTML content
+    }));
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!productData.name) {
+      toast.error("Product name is required");
+      return;
+    }
+    if (!productData.category) {
+      toast.error("Product category is required");
+      return;
+    }
+    if (
+      !productData.price ||
+      isNaN(productData.price) ||
+      parseFloat(productData.price) <= 0
+    ) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+    if (
+      !productData.discountedPrice ||
+      isNaN(productData.discountedPrice) ||
+      parseFloat(productData.discountedPrice) <= 0
+    ) {
+      toast.error("Please enter a valid discounted price");
+      return;
+    }
+    if (
+      !productData.quantity ||
+      isNaN(productData.quantity) ||
+      parseInt(productData.quantity) <= 0
+    ) {
+      toast.error("Please enter a valid quantity");
+      return;
+    }
+    if (!productData.size || productData.size.length === 0) {
+      toast.error("Please select at least one size");
+      return;
+    }
+    if (!productData.color || productData.color.length === 0) {
+      toast.error("Please select at least one color");
+      return;
+    }
+    if (!productData.gender) {
+      toast.error("Please select a gender");
+      return;
+    }
+    if (!productData.description) {
+      toast.error("Product description is required");
+      return;
+    }
+    
+
     const formData = new FormData();
     formData.append("name", productData.name);
-    formData.append("category", productData.category?._id);
+    formData.append("category", productData.category);
     formData.append("price", productData.price);
     formData.append("discountedPrice", productData.discountedPrice);
     formData.append("quantity", productData.quantity);
@@ -86,9 +196,14 @@ function ProductUpdateModal({ productId, onClose, onSave }) {
     formData.append("color", JSON.stringify(productData.color));
     formData.append("gender", productData.gender);
     formData.append("description", productData.description);
-    if (productImageFile) {
-      formData.append("image", productImageFile);
+    if (fileList.length > 0) {
+      fileList.forEach((file) => {
+        formData.append("images", file.originFileObj);
+      });
+    } else {
+      formData.append("images", JSON.stringify([]));
     }
+
     setIsLoading(true);
     try {
       await onSave(productId, formData);
@@ -99,195 +214,188 @@ function ProductUpdateModal({ productId, onClose, onSave }) {
     }
   };
 
-  const fetchCategories = async () => {
-    const response = await getCategories().then((res) => {
-      let data = res.map((elem) => {
-        return { label: elem?.name, value: elem?._id };
-      });
-      setCategories(data);
-    });
-  };
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50 py-6">
-      <div
-        className=" bg-white p-6 shadow-lg w-full rounded-xl max-w-2xl max-h-[80vh] overflow-auto sm:w-3/4"
-        style={{
-          scrollbarWidth: "none" /* Firefox */,
-          msOverflowStyle: "none" /* Internet Explorer 10+ */,
-        }}
-      >
+      <div className="bg-white p-6 shadow-lg w-full rounded-xl max-w-2xl max-h-[80vh] overflow-auto sm:w-3/4">
         <h2 className="text-2xl font-semibold mb-4 text-center">
           Edit Product
         </h2>
         <form onSubmit={handleSubmit}>
-          {/* Image Upload Section */}
-          <div className="w-full sm:w-1/3 flex flex-col items-center mb-4">
-            <div className="w-full h-48 mb-4 border border-gray-300 rounded-md overflow-hidden shadow-sm flex items-center justify-center">
-              {productImagePreview ? (
-                <img
-                  src={
-                    productImagePreview
-                      ? productImagePreview
-                      : getImageUrl(productData?.image)
-                  }
-                  alt="Product Preview"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-gray-500 text-lg">Product Image</span>
-              )}
-            </div>
+          {/* Image Upload */}
+          <div className="mb-4">
             <input
               type="file"
               accept="image/*"
-              onChange={handleProductImageChange}
-              className="p-2 w-full text-sm border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
+              multiple
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+              id="file-upload"
             />
+            <Button variant="contained" component="label" htmlFor="file-upload">
+              Upload Images
+            </Button>
+            <Box display="flex" gap={2} mt={2}>
+              {fileList.map((file) => (
+                <Box
+                  key={file.uid}
+                  position="relative"
+                  width="100px"
+                  height="100px"
+                >
+                  <img
+                    src={file.url}
+                    alt={file.name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <IconButton
+                    onClick={() => handleRemoveImage(file)}
+                    size="small"
+                    style={{
+                      position: "absolute",
+                      top: 2,
+                      right: 2,
+                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
           </div>
 
           {/* Product Name */}
-          <input
-            type="text"
+          <TextField
             name="name"
+            label="Product Name"
             value={productData.name}
             onChange={handleInputChange}
-            className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-            placeholder="Enter product name"
+            fullWidth
+            margin="normal"
           />
 
-          {/* Category Selection */}
-          <select
-            name="category"
-            value={productData.category?._id}
-            onChange={handleInputChange}
-            className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option
-                key={cat?.value}
-                value={cat?.value}
-                className="text-black"
-              >
-                {cat?.label}
-              </option>
-            ))}
-          </select>
+          {/* Category */}
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Category</InputLabel>
+            <Select
+              name="category"
+              value={productData.category}
+              onChange={handleInputChange}
+              label="Category"
+            >
+              {categories.map((cat) => (
+                <MenuItem key={cat.value} value={cat.value}>
+                  {cat.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          {/* Price Input */}
-          <input
-            type="number"
+          {/* Price, Discounted Price, Quantity Inputs */}
+          <TextField
             name="price"
+            label="Price"
+            type="number"
             value={productData.price}
             onChange={handleInputChange}
-            placeholder="Enter price"
-            className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
+            fullWidth
+            margin="normal"
           />
-          {/* discountedPrice Input */}
-          <input
-            type="number"
+          <TextField
             name="discountedPrice"
+            label="Discounted Price"
+            type="number"
             value={productData.discountedPrice}
             onChange={handleInputChange}
-            placeholder="Enter Discount"
-            className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
+            fullWidth
+            margin="normal"
           />
-
-          {/* Quantity Input */}
-          <input
-            type="number"
+          <TextField
             name="quantity"
+            label="Quantity"
+            type="number"
             value={productData.quantity}
             onChange={handleInputChange}
-            placeholder="Enter quantity"
-            className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
+            fullWidth
+            margin="normal"
           />
 
           {/* Size Selection */}
-          <div className="mb-4">
-            <label className="block mb-2 text-sm">Size:</label>
-            <div className="flex gap-4">
-              {availableSizes.map((size) => (
-                <label key={size} className="flex items-center text-sm">
-                  <input
-                    type="checkbox"
+          <Box mb={2}>
+            <label className="block mb-2">Size:</label>
+            {availableSizes.map((size) => (
+              <FormControlLabel
+                key={size}
+                control={
+                  <Checkbox
                     checked={productData.size.includes(size)}
                     onChange={() => handleSizeChange(size)}
-                    className="form-checkbox h-5 w-5 text-blue-600 mr-2"
                   />
-                  {size}
-                </label>
-              ))}
-            </div>
-          </div>
+                }
+                label={size}
+              />
+            ))}
+          </Box>
 
           {/* Color Selection */}
-          <div className="mb-4">
-            <label className="block mb-2 text-sm">Color:</label>
-            <div className="flex gap-4">
-              {availableColors.map((color) => (
-                <label key={color} className="flex items-center text-sm">
-                  <input
-                    type="checkbox"
+          <Box mb={2}>
+            <label className="block mb-2">Color:</label>
+            {availableColors.map((color) => (
+              <FormControlLabel
+                key={color}
+                control={
+                  <Checkbox
                     checked={productData.color.includes(color)}
                     onChange={() => handleColorChange(color)}
-                    className="form-checkbox h-5 w-5 text-blue-600 mr-2"
                   />
-                  {color}
-                </label>
-              ))}
-            </div>
-          </div>
+                }
+                label={color}
+              />
+            ))}
+          </Box>
 
           {/* Gender Selection */}
-          <select
-            name="gender"
-            value={productData.gender}
-            onChange={handleInputChange}
-            className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 transition duration-200"
-          >
-            <option value="">Select Gender</option>
-            {genders.map((gen) => (
-              <option key={gen} value={gen} className="text-black">
-                {gen}
-              </option>
-            ))}
-          </select>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Gender</InputLabel>
+            <Select
+              name="gender"
+              value={productData.gender}
+              onChange={handleInputChange}
+              label="Gender"
+            >
+              {genders.map((gender) => (
+                <MenuItem key={gender} value={gender}>
+                  {gender}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          {/* Product Description */}
-          <textarea
-            name="description"
+          {/* Description */}
+          <ReactQuill
+            theme="snow"
             value={productData.description}
-            onChange={handleInputChange}
-            placeholder="Enter product description"
-            rows="4"
-            className="w-full p-3 mb-4 border border-gray-300 rounded-md resize-none focus:outline-none focus:border-blue-500 transition duration-200"
+            onChange={(value) => handleDescriptionChange(value)}
+            style={{ height: "150px", marginBottom: "1em" }}
           />
-
-          {/* Action Buttons */}
-          <div className="mt-6 flex justify-end gap-6">
-            <button
-              type="submit"
-              className={`w-24 py-2 px-4 rounded-md focus:outline-none transition-all duration-300 ease-in-out ${
-                isLoading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-              }`}
-            >
-              {isLoading ? " Saving..." : "Save"}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
-            >
+          {/* Actions */}
+          <Box display="flex" justifyContent="space-between" mt={8}>
+            <Button variant="outlined" color="gray" onClick={handleCancel}>
               Cancel
-            </button>
-          </div>
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
+          </Box>
         </form>
       </div>
     </div>

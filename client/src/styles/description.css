@@ -1,0 +1,83 @@
+.product-description{font-size: 6px !important;}
+.product-description {
+  padding: 5px 10px;
+  max-height: 150px; 
+  overflow-y: auto;
+  word-wrap: break-word;
+  background-color: #f5f5f5;
+}
+/* General paragraph styling */
+.product-description p {
+    margin: 1em 0;
+    line-height: 1.6;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  /* Ordered list styling (numbered) */
+  .product-description ol {
+    margin: 1em 0;
+    padding-left: 20px;
+    list-style-type: decimal; /* Standard decimal bullets */
+  }
+  
+  /* Unordered list styling (bullets) */
+  .product-description ul {
+    margin: 1em 0;
+    padding-left: 20px;
+    list-style-type: disc; /* Standard bullet points */
+  }
+  
+  /* List item styling */
+  .product-description li {
+    margin: 0.5em 0;
+    line-height: 1.6;
+    font-size: 1rem;
+    color: #444;
+  }
+  
+  /* Header tags (h1, h2, h3, etc.) */
+  .product-description h1,
+  .product-description h2,
+  .product-description h3 {
+    margin: 1em 0 0.5em 0;
+    font-weight: bold;
+    color: #222;
+  }
+  
+  /* Links */
+  .product-description a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .product-description a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Images */
+  .product-description img {
+    max-width: 100%;
+    height: auto;
+    margin: 1em 0;
+  }
+  
+  /* Tables (if used) */
+  .product-description table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    font-size: 1rem;
+  }
+  
+  .product-description table th,
+  .product-description table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .product-description table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  

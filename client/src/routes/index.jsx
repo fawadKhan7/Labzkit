@@ -16,6 +16,8 @@ import UploadImagesPage from "../pages/admin-offer-images";
 import AboutUS from "../pages/about-us";
 import ContactUs from "../pages/contact-us";
 import { useUser } from "../context/UserContext";
+import ForgotPassword from "../pages/forgot-password";
+import ResetPassword from "../pages/reset-password";
 
 const AppRouter = () => {
   const location = useLocation();
@@ -39,7 +41,23 @@ const AppRouter = () => {
           path="/register"
           element={token && user ? <Navigate to="/" replace /> : <Register />}
         />{" "}
-        <Route path="/cart" element={<Cart />} />
+        <Route
+          path="/forgot-password"
+          element={
+            token && user ? <Navigate to="/" replace /> : <ForgotPassword />
+          }
+        />
+        <Route
+          path="/reset-password/:token"
+          element={
+            token && user ? <Navigate to="/" replace /> : <ResetPassword />
+          }
+        />
+        <Route
+          path="/cart"
+          element={token && user ? <Cart /> : <Navigate to="/" replace />}
+          // element={}
+        />
         <Route path="/products/:category" element={<ProductsPage />} />
         <Route path="/product/:productId" element={<ProductDetailPage />} />
         <Route path="/admin/login" element={<AdminLogin />} />

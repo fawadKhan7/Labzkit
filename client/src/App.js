@@ -4,22 +4,26 @@ import { CartProvider } from "./context/CartContext";
 import AppRouter from "./routes";
 import "react-toastify/dist/ReactToastify.css";
 import { UserProvider } from "./context/UserContext";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 function App() {
+  const theme = createTheme();
   return (
     <div className="App ">
-      <CartProvider>
-        <UserProvider>
-          <AppRouter />
-        </UserProvider>
-      </CartProvider>
+      <ThemeProvider theme={theme}>
+        <CartProvider>
+          <UserProvider>
+            <AppRouter />
+          </UserProvider>
+        </CartProvider>
+      </ThemeProvider>
       <ToastContainer
         position="top-right"
         autoClose={1500}
         hideProgressBar={false}
         newestOnTop
         closeButton
-        style={{ fontSize: "12px" }} // Adjust the font size here
+        style={{ fontSize: "12px" }} 
       />
     </div>
   );

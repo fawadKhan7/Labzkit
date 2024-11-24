@@ -1,136 +1,218 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { registerUser } from "../../api/users";
+import React, { useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { registerUser } from "../../api/users"; // Assume this function handles user registration
+import CustomTextField from "../../components/FormField/CustomTextField";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Box, Typography, Paper, Grid } from "@mui/material";
+import { Stack } from "@mui/system";
 
 const Register = () => {
-  const [user, setUser] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-  });
-  const [loading, setLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser({
-      ...user,
-      [name]: value,
-    });
-  };
+  const RegisterSchema = Yup.object().shape({
+    firstName: Yup.string().required("First Name is required"),
+    lastName: Yup.string().required("Last Name is required"),
+    email: Yup.string().required("Email is required").email("Invalid email"),
+    password: Yup.string().required("Password is required"),
+    confirmPassword: Yup.string()
+      .required("Confirm password is required")
+      .oneOf([Yup.ref("password"), null], "Passwords must match"),
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user.firstName) {
-      toast.error("Please enter first name.");
-      return;
-    }
-    if (!user.lastName) {
-      toast.error("Please enter last name.");
-      return;
-    }
-    if (!user.email) {
-      toast.error("Please enter email.");
-      return;
-    }
-    if (!user.password) {
-      toast.error("Please enter password.");
-      return;
-    }
+  const methods = useForm({
+    resolver: yupResolver(RegisterSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-    try {
-      setLoading(true); // Set loading to true
-      const response = await registerUser(user);
-      if (response) {
-        toast.success("Registration Successful");
-        navigate("/login");
+  const {
+    handleSubmit,
+    reset,
+    formState: { isSubmitting, errors },
+  } = methods;
+
+  const onSubmit = useCallback(
+    async (data) => {
+      setIsLoading(true);
+      try {
+        const response = await registerUser(data);
+        if (response) {
+          toast.success("Registration Successful");
+          navigate("/login");
+        }
+      } catch (err) {
+        console.error(err);
+        setErrorMsg("Registration failed. Please try again!");
+        reset();
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      toast.error(err?.response?.data?.msg || "Registration Failed");
-    } finally {
-      setLoading(false); // Reset loading state
-    }
-  };
+    },
+    [navigate, reset]
+  );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-darkBg">
-      <div className="w-full max-w-md p-6 bg-white dark:bg-DarkPrimary rounded-lg shadow-lg transition-all duration-300 ease-in-out transform dark:text-darkText">
-        <h2 className="text-2xl font-semibold text-center text-blue-600 dark:text-darkText mb-6">
-          Welcome To Labzkit
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col items-center mb-4 gap-5 md:flex-row">
-            <div className="w-full md:w-1/2">
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                placeholder="First Name"
-                value={user.firstName}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-darkBg dark:text-darkText transition duration-300 ease-in-out"
-              />
-            </div>
-            <div className="w-full md:w-1/2">
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                placeholder="Last Name"
-                value={user.lastName}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-darkBg dark:text-darkText transition duration-300 ease-in-out"
-              />
-            </div>
-          </div>
-          <div className="mb-4">
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Email"
-              value={user.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-darkBg dark:text-darkText transition duration-300 ease-in-out"
-            />
-          </div>
-          <div className="mb-6">
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Password"
-              value={user.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-darkBg dark:text-darkText transition duration-300 ease-in-out"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading} // Disable button while loading
-            className={`w-full py-2 rounded-md focus:outline-none transition-all duration-300 ease-in-out ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
-            }`}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "white",
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          minHeight: 450,
+          maxWidth: 400,
+          width: "100%",
+          borderRadius: 2,
+          backgroundColor: "#FFFFFF",
+          color: "#1C252E",
+          boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: 3,
+        }}
+      >
+        <Stack spacing={2}>
+          <Typography
+            variant="h5"
+            sx={{ color: "#1C252E", fontWeight: "bold", textAlign: "center" }}
           >
-            {loading ? "Registering..." : "Sign Up"}
-          </button>
-          <p className="mt-4 text-center text-darkText dark:text-darkText">
-            Already have an account?{" "}
-            <a
-              onClick={() => navigate("/login")}
-              className="text-blue-600 hover:underline cursor-pointer dark:text-blue-400 transition-all duration-300 ease-in-out"
-            >
-              Log in
-            </a>
-          </p>
+            Create a new account
+          </Typography>
+        </Stack>
+
+        {errorMsg && (
+          <Box
+            sx={{
+              mb: 2,
+              p: 2,
+              bgcolor: "rgba(255, 0, 0, 0.1)",
+              color: "#FF5C5C",
+              borderRadius: 1,
+            }}
+          >
+            {errorMsg}
+          </Box>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={2}>
+            <Grid item md={6} xs={12}>
+              <CustomTextField
+                name="firstName"
+                label="First Name"
+                methods={methods}
+                error={!!errors.firstName}
+                helperText={errors.firstName?.message}
+                sx={{ backgroundColor: "#F5F5F5", borderRadius: "4px" }}
+              />
+            </Grid>
+            <Grid item md={6} xs={12}>
+              <CustomTextField
+                name="lastName"
+                label="Last Name"
+                methods={methods}
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
+                sx={{ backgroundColor: "#F5F5F5", borderRadius: "4px" }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <CustomTextField
+                name="email"
+                label="Email"
+                methods={methods}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                sx={{ backgroundColor: "#F5F5F5", borderRadius: "4px" }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <CustomTextField
+                name="password"
+                label="Password"
+                type="password"
+                methods={methods}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                sx={{ backgroundColor: "#F5F5F5", borderRadius: "4px" }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <CustomTextField
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                methods={methods}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword?.message}
+                sx={{ backgroundColor: "#F5F5F5", borderRadius: "4px" }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <LoadingButton
+                fullWidth
+                size="large"
+                type="submit"
+                variant="contained"
+                loading={isSubmitting}
+                disabled={isLoading || isSubmitting}
+                sx={{
+                  backgroundColor: "#00A76F",
+                  color: "#FFFFFF",
+                  "&:hover": {
+                    backgroundColor: "#007F5B",
+                  },
+                }}
+              >
+                {isLoading ? "Registering..." : "Register"}
+              </LoadingButton>
+            </Grid>
+          </Grid>
         </form>
-      </div>
-    </div>
+
+        <Typography
+          align="center"
+          sx={{
+            mt: 2,
+            color: "#1C252E",
+            fontSize: "0.875rem",
+          }}
+        >
+          Already have an account?{" "}
+          <Typography
+            component="span"
+            sx={{
+              color: "#00A76F",
+              cursor: "pointer",
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            }}
+            onClick={() => navigate("/login")}
+          >
+            Sign In
+          </Typography>
+        </Typography>
+      </Paper>
+    </Box>
   );
 };
 

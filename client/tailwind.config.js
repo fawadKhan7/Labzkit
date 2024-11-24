@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Helvetica", "sans-serif"], // Set Barrio as the default font
-        barrio: ["Barrio", "sans-serif"], // Set Barrio as the default font
+        sans: ['Poppins', 'sans-serif'], 
+        barrio: ["Barrio", "sans-serif"],
       },
       backgroundImage: {
         "bg-gradient": "url('/assets/header-bg.png')", 
