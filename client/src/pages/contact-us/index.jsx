@@ -45,13 +45,17 @@ const ContactUs = () => {
           <BsSendArrowUp />
           <p className="font-semibold text-xl">Visit Us</p>
         </div>
-        <p>Come say hello at our retail stores.</p>
+        <p>Come say hello at our locations!</p>
         <p className="text-sm">
-          Mon-Fri 9am to 5pm Sat 9.30 to 12pm Sun Closed
+          <span className="font-semibold">Monday to Friday</span>: 9:00am -
+          5:00pm
+        </p>
+        <p className="text-sm">
+          <span className="font-semibold">Saturday & Sunday</span>: Closed
         </p>
         <div className="flex items-center gap-4 text-sm">
           <p className="text-green-500 font-bold ">
-          P.O Box 255 Mernda VIC 3754
+            P.O Box 255 Mernda VIC 3754
           </p>
         </div>
       </div>

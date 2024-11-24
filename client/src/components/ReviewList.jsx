@@ -34,9 +34,13 @@ const ReviewList = ({ reviews, onDelete }) => {
             }}
           >
             <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+              <Box display={'flex'} alignItems={"center"} gap={1}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                 {`${review.user?.firstName} ${review.user?.lastName}`}
               </Typography>
+              <Rating value={review.rating} precision={0.1} readOnly size="small" />
+
+              </Box>
 
               {isAdmin && (
                 <IconButton
@@ -51,7 +55,6 @@ const ReviewList = ({ reviews, onDelete }) => {
             </Stack>
 
             <Stack spacing={1} mt={2}>
-              <Rating value={review.rating} precision={0.1} readOnly size="small" />
 
               <Typography variant="body2" sx={{  color: 'text.secondary' }}>
                 {review.reviewText}

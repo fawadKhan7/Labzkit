@@ -14,7 +14,7 @@ import "react-image-lightbox/style.css";
 import IncrementerButton from "./FormField/IncrementButton";
 import { Typography, Box, Button, CircularProgress } from "@mui/material";
 import CustomSelect from "./FormField/SelectField";
-import '../styles/description.css'
+import "../styles/description.css";
 const ProductDetail = ({ product }) => {
   const { addToCart } = useCart();
   const { isAdmin } = useUser();
@@ -304,19 +304,16 @@ const ProductDetail = ({ product }) => {
         </Box>
 
         <Box className="w-full my-4">
-      <Typography variant="h5" py={1}>About {product.name}</Typography>
-      <Typography variant="body2" color="gray">
-        <div
-          className="product-description"
-          dangerouslySetInnerHTML={{ __html: product.description }}
-          style={{
-            maxHeight: "200px", 
-            overflowY: "auto",
-          }}
-        />
-      </Typography>
-    </Box>
-
+          <Typography variant="h5" py={1}>
+            About {product.name}
+          </Typography>
+          <Typography variant="body2" color="gray">
+            <div
+              className="product-description"
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
+          </Typography>
+        </Box>
 
         <Box className="flex flex-col gap-4 mt-4">
           {reviewsLoading ? (
@@ -330,7 +327,6 @@ const ProductDetail = ({ product }) => {
           )}
         </Box>
       </Box>
-
 
       <Modal
         isOpen={isModalOpen}
