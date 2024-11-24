@@ -17,7 +17,6 @@ const authenticate = async (req, res, next) => {
   try {
     // Verify the token
     const decoded = jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET);
-console.log({decoded})
     if (!decoded) {
       return res.status(401).json({ msg: "Token is invalid" });
     }

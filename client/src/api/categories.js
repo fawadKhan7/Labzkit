@@ -17,7 +17,6 @@ export const getCategories = async (name) => {
 export const createCategory = async (categoryData) => {
   try {
     const response = await axios.post("/categories", categoryData);
-    console.log(response);
     return response.data;
   } catch (error) {
     console.error("Error creating category:", error);

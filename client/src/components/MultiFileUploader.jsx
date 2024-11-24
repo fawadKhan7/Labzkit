@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Image, Upload, message, Modal, Button, Space } from "antd";
+import { Image, Upload, Modal, Button, Space } from "antd";
 import { getImages, uploadImages, deleteImages } from "../api/images";
 import { toast } from "react-toastify";
 import { getImageUrl } from "../utils/functions";
@@ -59,7 +59,6 @@ const MultiFileUploader = () => {
 
   // Handle file upload
   const handleUpload = async () => {
-    // console.log("Uploading images...", fileList);
     const formData = new FormData();
     fileList.forEach((file) => {
       if (file.originFileObj) {

@@ -20,11 +20,15 @@ import {
 import { Box, Stack, useMediaQuery } from "@mui/system";
 import { GridDeleteIcon } from "@mui/x-data-grid";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { useUser } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const { cart, clearCart, removeItem } = useCart();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { user, token } = useUser();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setCartItems(cart);
@@ -39,6 +43,13 @@ const Cart = () => {
 
   const handleCompleteOrder = async () => {
     setLoading(true);
+    if (!user && !token) {
+      toast.error("Please login to proceed");
+      setTimeout(() => {
+        navigate("/login");
+      }, 500);
+      return;
+    }
     try {
       await createOrder({ products: cartItems });
       toast.success("Order Completed");

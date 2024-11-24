@@ -59,7 +59,6 @@ export const CartProvider = ({ children }) => {
     setCart([]);
     localStorage.removeItem("cart"); // Clear cart from localStorage
   };
-useEffect(()=>{console.log(cart)},[cart])  
 
 
   return (

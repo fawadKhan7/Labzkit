@@ -38,7 +38,9 @@ const Header = () => {
       <div className="flex flex-wrap items-center justify-between gap-5 w-full">
         {/* Logo */}
         <NavLink to="/">
-          <div className="bg-black w-fit py-2 px-1 md:px-4 text-white flex justify-center font-barrio">LabzKit</div>
+          <div className="bg-black w-fit py-2 px-1 md:px-4 text-white flex justify-center font-barrio">
+            LabzKit
+          </div>
         </NavLink>
 
         {/* Navigation */}
@@ -99,16 +101,16 @@ const Header = () => {
 
         {/* User Actions */}
         <div className="flex items-center gap-4 max-lg:ml-auto space-x-3">
+          {!isAdmin && (
+            <NavLink to="/cart" className="relative">
+              <FaShoppingCart className="text-xl hover:text-blue-300" />
+              <span className="absolute top-2 left-4 px-[6px] rounded-full bg-red-500 text-white text-xs">
+                {cartLength}
+              </span>
+            </NavLink>
+          )}
           {token && user ? (
             <>
-              {!isAdmin && (
-                <NavLink to="/cart" className="relative">
-                  <FaShoppingCart className="text-xl hover:text-blue-300" />
-                  <span className="absolute top-2 left-4 px-[6px] rounded-full bg-red-500 text-white text-xs">
-                    {cartLength}
-                  </span>
-                </NavLink>
-              )}
               {isAdmin && (
                 <NavLink to="/admin/products/">
                   <FaUserAlt className="text-xl hover:text-blue-300" />

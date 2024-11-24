@@ -55,7 +55,7 @@ const AppRouter = () => {
         />
         <Route
           path="/cart"
-          element={token && user ? <Cart /> : <Navigate to="/" replace />}
+          element={<Cart />}
           // element={}
         />
         <Route path="/products/:category" element={<ProductsPage />} />

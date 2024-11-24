@@ -52,7 +52,6 @@ const createProduct = async (req, res) => {
 
     res.status(201).json(product);
   } catch (error) {
-    console.log(error);
     res
       .status(500)
       .json({ message: "Error creating product", error: error.message });
@@ -217,7 +216,6 @@ const updateProduct = async (req, res) => {
 
     res.status(200).json(updatedProduct);
   } catch (error) {
-    console.log(error);
     res
       .status(500)
       .json({ message: "Error updating product", error: error.message });

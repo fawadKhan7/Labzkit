@@ -63,7 +63,6 @@ const getCategoryById = async (req, res) => {
 const deleteCategory = async (req, res) => {
   const { categoryId } = req.params;
 
-  console.log(categoryId)
   try {
     // Find the category by ID
     const category = await Category.findById(categoryId);

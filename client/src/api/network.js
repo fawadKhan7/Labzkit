@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { config } from "../config";
 
 // Create axios instance
-console.log(config.endpoint)
 const axiosInstance = axios.create({
   baseURL: `${config.endpoint}/api`,
   timeout: 8000, // Timeout set to 8000ms
