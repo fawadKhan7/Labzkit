@@ -7,6 +7,10 @@ import EmptyContent from "../../components/EmptyCart";
 import {
   Avatar,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   Paper,
   Table,
@@ -15,6 +19,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextareaAutosize,
+  TextField,
   Typography,
 } from "@mui/material";
 import { Box, Stack, useMediaQuery } from "@mui/system";
@@ -29,6 +35,42 @@ const Cart = () => {
   const [loading, setLoading] = useState(false);
   const { user, token } = useUser();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    number: "",
+    address: "",
+    description: "",
+  });
+  const [errors, setErrors] = useState({});
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const validate = () => {
+    let validationErrors = {};
+    if (!formData.number) validationErrors.number = "Number is required.";
+    if (!formData.address) validationErrors.address = "Address is required.";
+    return validationErrors;
+  };
+
+  const handleSubmit = () => {
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    handleCompleteOrder({
+      number: formData.number,
+      address: formData.address,
+      description: formData.description,
+    });
+    handleClose();
+  };
 
   useEffect(() => {
     setCartItems(cart);
@@ -41,7 +83,7 @@ const Cart = () => {
     );
   };
 
-  const handleCompleteOrder = async () => {
+  const handleCompleteOrder = async (data) => {
     setLoading(true);
     if (!user && !token) {
       toast.error("Please login to proceed");
@@ -51,7 +93,7 @@ const Cart = () => {
       return;
     }
     try {
-      await createOrder({ products: cartItems });
+      await createOrder({ products: cartItems, ...data });
       toast.success("Order Completed");
       clearCart();
     } catch (error) {
@@ -81,6 +123,7 @@ const Cart = () => {
               p: 3,
               boxShadow: 3,
               borderRadius: 2,
+              minWidth: 240,
             }}
           >
             <Typography variant="h6" gutterBottom>
@@ -150,7 +193,10 @@ const Cart = () => {
               p: 3,
               boxShadow: 3,
               borderRadius: 2,
-              minWidth: 280,
+              minWidth: 240,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
             }}
           >
             <Typography variant="h6" gutterBottom>
@@ -164,22 +210,13 @@ const Cart = () => {
               <Typography>Total Price</Typography>
               <Typography>${calculateTotal()}</Typography>
             </Box>
-            <Box
-              spacing={2}
-              display={"flex"}
-              flexDirection={isMobile ? "column" : "row"}
-              justifyContent={"space-between"}
-              alignItems="center"
-              gap={1}
-              mt={3}
-            >
+            <div className="w-full flex flex-col  sm:flex-row gap-4 mt-6">
               <LoadingButton
-                fullWidth={isMobile}
                 size="small"
                 variant="contained"
                 loading={loading}
                 disabled={loading}
-                onClick={handleCompleteOrder}
+                onClick={handleOpen}
                 sx={{
                   backgroundColor: "#00A76F",
                   color: "#FFFFFF",
@@ -195,12 +232,180 @@ const Cart = () => {
                 color="error"
                 size="small"
                 onClick={clearCart}
-                fullWidth={isMobile}
               >
                 Clear Cart
               </Button>
-            </Box>
+            </div>
           </Paper>
+
+          <Dialog
+            open={open}
+            onClose={handleClose}
+            fullWidth
+            maxWidth="sm"
+            PaperProps={{
+              sx: { borderRadius: 2, padding: 2, maxHeight: "90vh" },
+            }}
+          >
+            <DialogTitle
+              sx={{
+                fontWeight: "bold",
+                textAlign: "center",
+                fontSize: "1.5rem",
+              }}
+            >
+              Complete Your Order
+            </DialogTitle>
+            <DialogContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+              }}
+            >
+              <TextField
+                autoFocus
+                name="number"
+                label="Phone Number"
+                type="text"
+                fullWidth
+                value={formData.number}
+                onChange={handleChange}
+                error={!!errors.number}
+                helperText={errors.number}
+                variant="outlined"
+                sx={{
+                  marginTop:1,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px",
+                    "& fieldset": {
+                      borderColor: "#ccc",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#00A76F",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#007F5B",
+                    },
+                    "&:focus-visible": {
+                      outline: "none", // Removes the default browser outline
+                    },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    "&:focus": {
+                      outline: "none", // Removes inner input focus outline
+                      boxShadow: "none", // Prevents any glow/shadow on input focus
+                    },
+                  },
+                  "& .MuiOutlinedInput-root.Mui-focused": {
+                    boxShadow: "none", // Ensure no shadow on focus
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#007F5B",
+                  },
+                }}
+              />
+              <TextField
+                name="address"
+                label="Address"
+                type="text"
+                fullWidth
+                value={formData.address}
+                onChange={handleChange}
+                error={!!errors.address}
+                helperText={errors.address}
+                variant="outlined"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px",
+                    "& fieldset": {
+                      borderColor: "#ccc",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#00A76F",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#007F5B",
+                    },
+                    "&:focus-visible": {
+                      outline: "none", // Removes the default browser outline
+                    },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    "&:focus": {
+                      outline: "none", // Removes inner input focus outline
+                      boxShadow: "none", // Prevents any glow/shadow on input focus
+                    },
+                  },
+                  "& .MuiOutlinedInput-root.Mui-focused": {
+                    boxShadow: "none", // Ensure no shadow on focus
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#007F5B",
+                  },
+                }}
+              />
+              <TextareaAutosize
+                name="description"
+                placeholder="Description (Optional)"
+                minRows={4}
+                value={formData.description}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  borderRadius: "10px",
+                  border: "1px solid #ccc",
+                  fontSize: "1rem",
+                  transition: "border-color 0.3s",
+                  outline: "none",
+                }}
+                onFocus={(e) => (e.target.style.borderColor = "#00A76F")}
+                onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+              />
+            </DialogContent>
+            <div
+              style={{
+                position: "sticky",
+                bottom: 0,
+                background: "#fff",
+                padding: "1rem",
+                display: "flex",
+                gap: "1rem",
+                borderTop: "1px solid #eee",
+                zIndex: 2,
+              }}
+            >
+              <Button
+                fullWidth
+                onClick={handleSubmit}
+                variant="contained"
+                color="primary"
+                sx={{
+                  borderRadius: "5px",
+                  padding: "0.5rem 2rem",
+                  textTransform: "none",
+                  backgroundColor: "#00A76F",
+                  "&:hover": { backgroundColor: "#007F5B" },
+                }}
+              >
+                Submit
+              </Button>
+              <Button
+                fullWidth
+                onClick={handleClose}
+                variant="outlined"
+                color="error"
+                sx={{
+                  borderRadius: "5px",
+                  padding: "0.5rem 2rem",
+                  textTransform: "none",
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </Dialog>
         </Box>
       ) : (
         <EmptyContent

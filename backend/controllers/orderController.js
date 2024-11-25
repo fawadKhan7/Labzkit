@@ -4,7 +4,7 @@ const Product = require("../models/productModel");
 
 const createOrder = async (req, res) => {
   try {
-    const { products } = req.body;
+    const { products, address, number, description = "" } = req.body;
 
     // Validate input
     if (!products || products.length === 0) {
@@ -44,6 +44,9 @@ const createOrder = async (req, res) => {
       userId: req.user.userId,
       products,
       totalPrice,
+      address,
+      number,
+      description,
     });
 
     await newOrder.save();

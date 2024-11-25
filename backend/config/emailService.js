@@ -35,6 +35,9 @@ const sendOrderConfirmation = async (order) => {
   const orderId = order._id;
   const totalPrice = order.totalPrice;
   const createdAt = new Date(order.createdAt).toLocaleString();
+  const number = order.number;
+  const address = order.address;
+  const orderDescription = order.description || "";
 
   // Map through the products array
   const productRows = order.products
@@ -120,6 +123,12 @@ const sendOrderConfirmation = async (order) => {
           <h3>Order Information</h3>
           <p><strong>Order From:</strong> ${userFullName}</p>
           <p><strong>Order ID:</strong> ${orderId}</p>
+          <p><strong>Contact Number:</strong> ${number}</p>
+          <p><strong>Address:</strong> ${address}</p>
+          ${
+            orderDescription &&
+            `<p><strong>Description:</strong> ${orderDescription}</p>`
+          }
           <p><strong>Total Price:</strong> $${totalPrice}</p>
           <p><strong>Created At:</strong> ${createdAt}</p>
       
@@ -212,6 +221,13 @@ const sendOrderConfirmation = async (order) => {
           <h3>Order Information</h3>
           <p><strong>Order From:</strong> ${userFullName}</p>
           <p><strong>Order ID:</strong> ${orderId}</p>
+                    <p><strong>Contact Number:</strong> ${number}</p>
+          <p><strong>Address:</strong> ${address}</p>
+          ${
+            orderDescription &&
+            `<p><strong>Description:</strong> ${orderDescription}</p>`
+          }
+
           <p><strong>Total Price:</strong> $${totalPrice}</p>
           <p><strong>Created At:</strong> ${createdAt}</p>
       
