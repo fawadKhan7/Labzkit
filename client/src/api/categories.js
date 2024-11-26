@@ -24,6 +24,16 @@ export const createCategory = async (categoryData) => {
   }
 };
 
+export const updateCategory = async (id,categoryData) => {
+  try {
+    const response = await axios.put(`/categories/${id}`, categoryData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating category:", error);
+    throw error;
+  }
+};
+
 // Delete a category
 export const deleteCategory = async (categoryId) => {
   try {
@@ -31,6 +41,16 @@ export const deleteCategory = async (categoryId) => {
     return response.data;
   } catch (error) {
     console.error("Error deleting category:", error);
+    // throw error;
+  }
+};
+
+export const getCategoryById = async (categoryId) => {
+  try {
+    const response = await axios.get(`/categories/${categoryId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error getting category:", error);
     // throw error;
   }
 };

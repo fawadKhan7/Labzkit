@@ -28,6 +28,42 @@ const createCategory = async (req, res) => {
   }
 };
 
+const updateCategory = async (req, res) => {
+  const { id } = req.params; // Category ID from route params
+  const { name } = req.body; // New name for the category
+  const image = req.file?.filename || ""; // New image file, if provided
+
+  try {
+    // Check if the category exists
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    // Check if a category with the new name already exists (if name is updated)
+    if (name && name !== category.name) {
+      const existingCategory = await Category.findOne({ name });
+      if (existingCategory) {
+        return res.status(400).json({ message: "Category with this name already exists" });
+      }
+    }
+
+    // Update fields
+    if (name) category.name = name;
+    if (image) category.image = image;
+
+    // Save updated category
+    const updatedCategory = await category.save();
+
+    res.status(200).json(updatedCategory);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Error updating category", error: error.message });
+  }
+};
+
 // Get all categories
 const getAllCategories = async (req, res) => {
   try {
@@ -87,6 +123,7 @@ const deleteCategory = async (req, res) => {
 };
 module.exports = {
   createCategory,
+  updateCategory,
   getAllCategories,
   getCategoryById,
   deleteCategory,

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProducts, deleteProduct, updateProduct } from "../../api/products";
-import { getCategories, deleteCategory } from "../../api/categories";
+import {
+  getCategories,
+  deleteCategory,
+  updateCategory,
+  getCategoryById,
+} from "../../api/categories";
 import { getImageUrl, imagesProduct } from "../../utils/functions";
 import ProductUpdateModal from "../../components/EditProductModal";
 import { toast } from "react-toastify";
@@ -14,6 +19,8 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Modal,
+  TextField,
   Typography,
 } from "@mui/material";
 import { genders } from "../../data/selectFieldsData";
@@ -31,8 +38,68 @@ const AdminProductList = () => {
   const [selectedTab, setSelectedTab] = useState("products");
   const [searchTerm, setSearchTerm] = useState("");
   const [genderFilter, setGenderFilter] = useState("");
-
   const [anchorEl, setAnchorEl] = useState({}); // Track the anchorEl for each product
+  const [open, setOpen] = useState(false); // Modal state
+  const [currentCategory, setCurrentCategory] = useState(null); // Category being edited
+  const [formData, setFormData] = useState({
+    name: "",
+    image: null,
+  });
+
+  const handleOpenModal = async (categoryId) => {
+    try {
+      const category = await getCategoryById(categoryId); // Fetch category details
+      setCurrentCategory(category);
+      setFormData({
+        name: category.name,
+        image: null, // Reset image as it is handled by file input
+      });
+      setOpen(true);
+    } catch (error) {
+      console.error("Error fetching category:", error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setOpen(false);
+    setCurrentCategory(null);
+    setFormData({ name: "", image: null });
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value, files } = e.target;
+
+    if (name === "image" && files.length > 0) {
+      const file = files[0];
+      const previewUrl = URL.createObjectURL(file);
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: file,
+        previewImage: previewUrl,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleUpdateCategory = async () => {
+    try {
+      const formPayload = new FormData();
+      formPayload.append("name", formData.name);
+      if (formData.image) formPayload.append("image", formData.image);
+
+      await updateCategory(currentCategory._id, formPayload); // Send FormData to API
+      toast("Category updated successfully!");
+      fetchCategories();
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error updating category:", error);
+    }
+  };
 
   const handleMenuOpen = (event, productId) => {
     setAnchorEl((prev) => ({ ...prev, [productId]: event.currentTarget }));
@@ -344,9 +411,17 @@ const AdminProductList = () => {
                       onClick={() => handleDeleteCategory(category._id)}
                       variant="contained"
                       color="error"
-                      sx={{ mt: 2 }}
+                      sx={{ mt: 2, mr: 1 }}
                     >
                       Delete
+                    </Button>
+                    <Button
+                      onClick={() => handleOpenModal(category._id)}
+                      variant="contained"
+                      color="primary"
+                      sx={{ mt: 2 }}
+                    >
+                      Edit
                     </Button>
                   </CardContent>
                 </Card>
@@ -355,6 +430,87 @@ const AdminProductList = () => {
           </Grid>
         </div>
       )}
+      <Modal open={open} onClose={handleCloseModal}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
+            Edit Category
+          </h2>
+          <form>
+            {currentCategory?.image && (
+              <Box
+                sx={{
+                  textAlign: "center",
+                  marginBottom: "1rem",
+                }}
+              >
+                <img
+                  src={
+                    formData.previewImage || getImageUrl(currentCategory.image)
+                  } // Show preview if available
+                  alt={currentCategory.name}
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    objectFit: "contain",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                    marginInline: "auto",
+                  }}
+                />{" "}
+                <p style={{ color: "#6b7280", fontSize: "0.9rem" }}>
+                  Current Image
+                </p>
+              </Box>
+            )}
+
+            <TextField
+              fullWidth
+              name="name"
+              label="Category Name"
+              value={formData.name}
+              onChange={handleFormChange}
+              sx={{ mb: 2 }}
+            />
+            <Button
+              variant="contained"
+              component="label"
+              fullWidth
+              size="small"
+              sx={{ mb: 2 }}
+            >
+              Upload New Image
+              <input
+                type="file"
+                name="image"
+                hidden
+                onChange={handleFormChange}
+              />
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              fullWidth
+              onClick={handleUpdateCategory}
+              sx={{backgroundColor:"#00A76F"}}
+            >
+              Save Changes
+            </Button>
+          </form>
+        </Box>
+      </Modal>
     </div>
   );
 };

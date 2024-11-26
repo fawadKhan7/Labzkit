@@ -35,8 +35,13 @@ const sendOrderConfirmation = async (order) => {
   const orderId = order._id;
   const totalPrice = order.totalPrice;
   const createdAt = new Date(order.createdAt).toLocaleString();
-  const number = order.number;
+  const number = order.numberOne;
+  const numberTwo = order.numberTwo;
+  const country = order.country;
   const address = order.address;
+  const city = order.city;
+  const state = order.state;
+  const postCode = order.postCode;
   const orderDescription = order.description || "";
 
   // Map through the products array
@@ -124,7 +129,17 @@ const sendOrderConfirmation = async (order) => {
           <p><strong>Order From:</strong> ${userFullName}</p>
           <p><strong>Order ID:</strong> ${orderId}</p>
           <p><strong>Contact Number:</strong> ${number}</p>
+          ${
+            numberTwo &&
+            `<p>
+                <strong>Contact Number Two:</strong> ${numberTwo}
+              </p>`
+          }
           <p><strong>Address:</strong> ${address}</p>
+          <p><strong>Country:</strong> ${country}</p>
+          <p><strong>City:</strong> ${city}</p>
+          <p><strong>State:</strong> ${state}</p>
+          <p><strong>Post Code:</strong> ${postCode}</p>
           ${
             orderDescription &&
             `<p><strong>Description:</strong> ${orderDescription}</p>`
@@ -221,13 +236,22 @@ const sendOrderConfirmation = async (order) => {
           <h3>Order Information</h3>
           <p><strong>Order From:</strong> ${userFullName}</p>
           <p><strong>Order ID:</strong> ${orderId}</p>
-                    <p><strong>Contact Number:</strong> ${number}</p>
+          <p><strong>Contact Number:</strong> ${number}</p>
+          ${
+            numberTwo &&
+            `<p>
+                <strong>Contact Number Two:</strong> ${numberTwo}
+              </p>`
+          }
           <p><strong>Address:</strong> ${address}</p>
+          <p><strong>Country:</strong> ${country}</p>
+          <p><strong>City:</strong> ${city}</p>
+          <p><strong>State:</strong> ${state}</p>
+          <p><strong>Post Code:</strong> ${postCode}</p>
           ${
             orderDescription &&
             `<p><strong>Description:</strong> ${orderDescription}</p>`
           }
-
           <p><strong>Total Price:</strong> $${totalPrice}</p>
           <p><strong>Created At:</strong> ${createdAt}</p>
       

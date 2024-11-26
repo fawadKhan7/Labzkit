@@ -37,13 +37,27 @@ const Cart = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    number: "",
+    numberOne: "",
+    numberTwo: "",
     address: "",
+    country: "",
+    city: "",
+    state: "",
+    postCode: "",
     description: "",
   });
   const [errors, setErrors] = useState({});
 
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => {
+    if (!user && !token) {
+      toast.error("Please login to proceed");
+      setTimeout(() => {
+        navigate("/login");
+      }, 500);
+      return;
+    }
+    setOpen(true);
+  };
   const handleClose = () => setOpen(false);
 
   const handleChange = (e) => {
@@ -53,8 +67,13 @@ const Cart = () => {
 
   const validate = () => {
     let validationErrors = {};
-    if (!formData.number) validationErrors.number = "Number is required.";
+    if (!formData.numberOne) validationErrors.numberOne = "Number is required.";
     if (!formData.address) validationErrors.address = "Address is required.";
+    if (!formData.country) validationErrors.country = "Country is required.";
+    if (!formData.city) validationErrors.city = "City is required.";
+    if (!formData.state) validationErrors.state = "State is required.";
+    if (!formData.postCode)
+      validationErrors.postCode = "Post code is required.";
     return validationErrors;
   };
 
@@ -65,8 +84,13 @@ const Cart = () => {
       return;
     }
     handleCompleteOrder({
-      number: formData.number,
+      numberOne: formData.numberOne,
+      numberTwo: formData.numberTwo,
       address: formData.address,
+      country: formData.country,
+      city: formData.city,
+      state: formData.state,
+      postCode: formData.postCode,
       description: formData.description,
     });
     handleClose();
@@ -104,6 +128,60 @@ const Cart = () => {
   };
 
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
+
+  const AddressField = ({
+    name,
+    label,
+    type,
+    value,
+    onChange,
+    error,
+    helperText,
+  }) => {
+    return (
+      <TextField
+        name={name}
+        label={label}
+        type={type || "text"}
+        fullWidth
+        size="small"
+        value={value}
+        onChange={onChange}
+        error={!!error}
+        helperText={helperText}
+        variant="outlined"
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "10px",
+            "& fieldset": {
+              borderColor: "#ccc",
+            },
+            "&:hover fieldset": {
+              borderColor: "#00A76F",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#007F5B",
+            },
+            "&:focus-visible": {
+              outline: "none",
+            },
+          },
+          "& .MuiOutlinedInput-input": {
+            "&:focus": {
+              outline: "none",
+              boxShadow: "none",
+            },
+          },
+          "& .MuiOutlinedInput-root.Mui-focused": {
+            boxShadow: "none",
+          },
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: "#007F5B",
+          },
+        }}
+      />
+    );
+  };
 
   return (
     <div className="p-8 min-h-screen">
@@ -170,7 +248,7 @@ const Cart = () => {
                           </Typography>
                         </Stack>
                       </TableCell>
-                      <TableCell>${item.price}</TableCell>
+                      <TableCell>${item.price.toFixed(2)}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell>${item.price * item.quantity}</TableCell>
                       <TableCell align="right">
@@ -244,7 +322,7 @@ const Cart = () => {
             fullWidth
             maxWidth="sm"
             PaperProps={{
-              sx: { borderRadius: 2, padding: 2, maxHeight: "90vh" },
+              sx: { borderRadius: 2, padding: 2, maxHeight: "100%" },
             }}
           >
             <DialogTitle
@@ -265,17 +343,18 @@ const Cart = () => {
             >
               <TextField
                 autoFocus
-                name="number"
+                name="numberOne"
                 label="Phone Number"
                 type="text"
+                size="small"
                 fullWidth
-                value={formData.number}
+                value={formData.numberOne}
                 onChange={handleChange}
-                error={!!errors.number}
-                helperText={errors.number}
+                error={!!errors.numberOne}
+                helperText={errors.numberOne}
                 variant="outlined"
                 sx={{
-                  marginTop:1,
+                  marginTop: 1,
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "10px",
                     "& fieldset": {
@@ -288,17 +367,17 @@ const Cart = () => {
                       borderColor: "#007F5B",
                     },
                     "&:focus-visible": {
-                      outline: "none", // Removes the default browser outline
+                      outline: "none",
                     },
                   },
                   "& .MuiOutlinedInput-input": {
                     "&:focus": {
-                      outline: "none", // Removes inner input focus outline
-                      boxShadow: "none", // Prevents any glow/shadow on input focus
+                      outline: "none",
+                      boxShadow: "none",
                     },
                   },
                   "& .MuiOutlinedInput-root.Mui-focused": {
-                    boxShadow: "none", // Ensure no shadow on focus
+                    boxShadow: "none",
                   },
                   "& .MuiInputLabel-root.Mui-focused": {
                     color: "#007F5B",
@@ -306,6 +385,49 @@ const Cart = () => {
                 }}
               />
               <TextField
+                autoFocus
+                name="numberTwo"
+                label="Phone Number (Optional)"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.numberTwo}
+                onChange={handleChange}
+                error={!!errors.numberTwo}
+                helperText={errors.numberTwo}
+                variant="outlined"
+                sx={{
+                  marginTop: 1,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px",
+                    "& fieldset": {
+                      borderColor: "#ccc",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#00A76F",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#007F5B",
+                    },
+                    "&:focus-visible": {
+                      outline: "none",
+                    },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    "&:focus": {
+                      outline: "none",
+                      boxShadow: "none",
+                    },
+                  },
+                  "& .MuiOutlinedInput-root.Mui-focused": {
+                    boxShadow: "none",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#007F5B",
+                  },
+                }}
+              />
+              <AddressField
                 name="address"
                 label="Address"
                 type="text"
@@ -314,37 +436,51 @@ const Cart = () => {
                 onChange={handleChange}
                 error={!!errors.address}
                 helperText={errors.address}
-                variant="outlined"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "10px",
-                    "& fieldset": {
-                      borderColor: "#ccc",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#00A76F",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#007F5B",
-                    },
-                    "&:focus-visible": {
-                      outline: "none", // Removes the default browser outline
-                    },
-                  },
-                  "& .MuiOutlinedInput-input": {
-                    "&:focus": {
-                      outline: "none", // Removes inner input focus outline
-                      boxShadow: "none", // Prevents any glow/shadow on input focus
-                    },
-                  },
-                  "& .MuiOutlinedInput-root.Mui-focused": {
-                    boxShadow: "none", // Ensure no shadow on focus
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#007F5B",
-                  },
-                }}
               />
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <AddressField
+                  name="city"
+                  label="City"
+                  type="text"
+                  fullWidth
+                  value={formData.city}
+                  onChange={handleChange}
+                  error={!!errors.city}
+                  helperText={errors.city}
+                />
+                <AddressField
+                  name="state"
+                  label="State"
+                  type="text"
+                  fullWidth
+                  value={formData.state}
+                  onChange={handleChange}
+                  error={!!errors.state}
+                  helperText={errors.state}
+                />
+              </div>
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <AddressField
+                  name="country"
+                  label={"Country"}
+                  type="text"
+                  fullWidth
+                  value={formData.country}
+                  onChange={handleChange}
+                  error={!!errors.country}
+                  helperText={errors.country}
+                />
+                <AddressField
+                  name="postCode"
+                  label="Post Code"
+                  type="text"
+                  fullWidth
+                  value={formData.postCode}
+                  onChange={handleChange}
+                  error={!!errors.postCode}
+                  helperText={errors.postCode}
+                />
+              </div>
               <TextareaAutosize
                 name="description"
                 placeholder="Description (Optional)"
@@ -359,6 +495,7 @@ const Cart = () => {
                   fontSize: "1rem",
                   transition: "border-color 0.3s",
                   outline: "none",
+                  minHeight: "100px",
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "#00A76F")}
                 onBlur={(e) => (e.target.style.borderColor = "#ccc")}

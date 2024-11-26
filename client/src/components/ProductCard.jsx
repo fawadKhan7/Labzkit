@@ -67,11 +67,11 @@ const ProductCard = ({ product }) => {
                     textDecoration: "line-through",
                   }}
                 >
-                  ${product.price}
+                  ${product.price.toFixed(2)}
                 </Box>
               )}
               <Box component="span">
-                ${product.discountedPrice || product.price}
+                ${product.discountedPrice.toFixed(2) || product.price}
               </Box>
             </Box>
           </Stack>

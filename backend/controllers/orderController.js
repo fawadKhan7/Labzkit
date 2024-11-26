@@ -4,7 +4,17 @@ const Product = require("../models/productModel");
 
 const createOrder = async (req, res) => {
   try {
-    const { products, address, number, description = "" } = req.body;
+    const {
+      products,
+      address,
+      city,
+      state,
+      postCode,
+      country,
+      numberOne,
+      numberTwo = "",
+      description = "",
+    } = req.body;
 
     // Validate input
     if (!products || products.length === 0) {
@@ -45,7 +55,12 @@ const createOrder = async (req, res) => {
       products,
       totalPrice,
       address,
-      number,
+      city,
+      state,
+      postCode,
+      country,
+      numberOne,
+      numberTwo: numberTwo || "",
       description,
     });
 
