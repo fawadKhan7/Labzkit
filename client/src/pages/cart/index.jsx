@@ -67,13 +67,39 @@ const Cart = () => {
 
   const validate = () => {
     let validationErrors = {};
-    if (!formData.numberOne) validationErrors.numberOne = "Number is required.";
-    if (!formData.address) validationErrors.address = "Address is required.";
-    if (!formData.country) validationErrors.country = "Country is required.";
-    if (!formData.city) validationErrors.city = "City is required.";
-    if (!formData.state) validationErrors.state = "State is required.";
-    if (!formData.postCode)
+
+    if (!formData.numberOne) {
+      validationErrors.numberOne = "Number is required.";
+    } else if (!/^\d+$/.test(formData.numberOne)) {
+      validationErrors.numberOne = "Number must contain only digits.";
+    }
+
+    if (formData.numberTwo && !/^\d+$/.test(formData.numberTwo)) {
+      validationErrors.numberTwo = "Second number must contain only digits.";
+    }
+
+    if (!formData.address) {
+      validationErrors.address = "Address is required.";
+    }
+
+    if (!formData.country) {
+      validationErrors.country = "Country is required.";
+    }
+
+    if (!formData.city) {
+      validationErrors.city = "City is required.";
+    }
+
+    if (!formData.state) {
+      validationErrors.state = "State is required.";
+    }
+
+    if (!formData.postCode) {
       validationErrors.postCode = "Post code is required.";
+    } else if (!/^\d+$/.test(formData.postCode)) {
+      validationErrors.postCode = "Post code must contain only digits.";
+    }
+
     return validationErrors;
   };
 

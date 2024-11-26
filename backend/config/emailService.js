@@ -125,27 +125,35 @@ const sendOrderConfirmation = async (order) => {
             <p><strong>Email:</strong> ${userEmail}</p>
           </div>
       
-          <h3>Order Information</h3>
-          <p><strong>Order From:</strong> ${userFullName}</p>
-          <p><strong>Order ID:</strong> ${orderId}</p>
-          <p><strong>Contact Number:</strong> ${number}</p>
-          ${
-            numberTwo &&
-            `<p>
-                <strong>Contact Number Two:</strong> ${numberTwo}
-              </p>`
-          }
-          <p><strong>Address:</strong> ${address}</p>
-          <p><strong>Country:</strong> ${country}</p>
-          <p><strong>City:</strong> ${city}</p>
-          <p><strong>State:</strong> ${state}</p>
-          <p><strong>Post Code:</strong> ${postCode}</p>
-          ${
-            orderDescription &&
-            `<p><strong>Description:</strong> ${orderDescription}</p>`
-          }
-          <p><strong>Total Price:</strong> $${totalPrice}</p>
-          <p><strong>Created At:</strong> ${createdAt}</p>
+<div style="font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; max-width: 400px; margin: 20px auto;">
+  <h2 style="text-align: center; margin-bottom: 20px;">Order Receipt</h2>
+  <div style="margin-bottom: 10px;">
+    <p><strong>Order From:</strong> ${userFullName}</p>
+    <p><strong>Order ID:</strong> ${orderId}</p>
+    <p><strong>Contact Number:</strong> ${number}</p>
+    ${numberTwo && `<p><strong>Contact Number Two:</strong> ${numberTwo}</p>`}
+  </div>
+  <hr style="border: 0; height: 1px; background: #ddd; margin: 10px 0;">
+  <div style="margin-bottom: 10px;">
+    <p><strong>Address:</strong> ${address}</p>
+    <p><strong>Country:</strong> ${country}</p>
+    <p><strong>City:</strong> ${city}</p>
+    <p><strong>State:</strong> ${state}</p>
+    <p><strong>Post Code:</strong> ${postCode}</p>
+  </div>
+  ${
+    orderDescription &&
+    `<div style="margin-bottom: 10px;">
+      <p><strong>Description:</strong> ${orderDescription}</p>
+    </div>`
+  }
+  <hr style="border: 0; height: 1px; background: #ddd; margin: 10px 0;">
+  <div style="margin-bottom: 10px;">
+    <p><strong>Total Price:</strong> $${totalPrice}</p>
+    <p><strong>Created At:</strong> ${createdAt}</p>
+  </div>
+</div>
+
       
           <h3>Products</h3>
           <table>
@@ -233,27 +241,34 @@ const sendOrderConfirmation = async (order) => {
             <p><strong>Email:</strong> ${userEmail}</p>
           </div>
       
-          <h3>Order Information</h3>
-          <p><strong>Order From:</strong> ${userFullName}</p>
-          <p><strong>Order ID:</strong> ${orderId}</p>
-          <p><strong>Contact Number:</strong> ${number}</p>
-          ${
-            numberTwo &&
-            `<p>
-                <strong>Contact Number Two:</strong> ${numberTwo}
-              </p>`
-          }
-          <p><strong>Address:</strong> ${address}</p>
-          <p><strong>Country:</strong> ${country}</p>
-          <p><strong>City:</strong> ${city}</p>
-          <p><strong>State:</strong> ${state}</p>
-          <p><strong>Post Code:</strong> ${postCode}</p>
-          ${
-            orderDescription &&
-            `<p><strong>Description:</strong> ${orderDescription}</p>`
-          }
-          <p><strong>Total Price:</strong> $${totalPrice}</p>
-          <p><strong>Created At:</strong> ${createdAt}</p>
+<div style="font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; max-width: 400px; margin: 20px auto;">
+  <h2 style="text-align: center; margin-bottom: 20px;">Order Receipt</h2>
+  <div style="margin-bottom: 10px;">
+    <p><strong>Order From:</strong> ${userFullName}</p>
+    <p><strong>Order ID:</strong> ${orderId}</p>
+    <p><strong>Contact Number:</strong> ${number}</p>
+    ${numberTwo && `<p><strong>Contact Number Two:</strong> ${numberTwo}</p>`}
+  </div>
+  <hr style="border: 0; height: 1px; background: #ddd; margin: 10px 0;">
+  <div style="margin-bottom: 10px;">
+    <p><strong>Address:</strong> ${address}</p>
+    <p><strong>Country:</strong> ${country}</p>
+    <p><strong>City:</strong> ${city}</p>
+    <p><strong>State:</strong> ${state}</p>
+    <p><strong>Post Code:</strong> ${postCode}</p>
+  </div>
+  ${
+    orderDescription &&
+    `<div style="margin-bottom: 10px;">
+      <p><strong>Description:</strong> ${orderDescription}</p>
+    </div>`
+  }
+  <hr style="border: 0; height: 1px; background: #ddd; margin: 10px 0;">
+  <div style="margin-bottom: 10px;">
+    <p><strong>Total Price:</strong> $${totalPrice}</p>
+    <p><strong>Created At:</strong> ${createdAt}</p>
+  </div>
+</div>
       
           <h3>Products</h3>
           <table>
