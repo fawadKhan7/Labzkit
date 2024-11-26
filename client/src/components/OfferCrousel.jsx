@@ -7,13 +7,13 @@ const OfferCrousel = ({ urls }) => {
     <Carousel autoplay >
       {urls?.map((img, index) => (
         <div key={index}>
-          <img
-            style={{
-              width: "100%",
-              height: "400px",
-              objectFit: "contain",  
-              objectPosition: "center",
-            }}
+          <img className="w-full h-[200px] sm:h-[400px] object-contain object-center"
+            // style={{
+            //   width: "100%",
+            //   height: "400px",
+            //   objectFit: "contain",  
+            //   objectPosition: "center",
+            // }}
             src={getImageUrl(img?.url)}
             alt={`offer-${index}`} 
           />

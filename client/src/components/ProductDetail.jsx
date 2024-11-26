@@ -33,12 +33,16 @@ const ProductDetail = ({ product }) => {
 
   const handleQuantityChange = (value) => {
     setQuantity((prevQuantity) => {
+      if (value === "") {
+        return ""; // Allow clearing the input
+      }
+
       if (value > product?.quantity) {
         toast.warn(
           `Oops! You can't order more than ${product?.quantity} of this item right now. Stock is limited.`
         );
         return prevQuantity;
-      } else if (value < 1) {
+      } else if (value < 0) {
         toast.warn(`You can't order less than 1 item.`);
         return prevQuantity;
       }
@@ -265,10 +269,10 @@ const ProductDetail = ({ product }) => {
                   variant="contained"
                   color="primary"
                   onClick={handleAddToCart}
-                  disabled={!selectedSize || !selectedColor}
+                  disabled={!selectedSize || !selectedColor || quantity < 1}
                   fullWidth
                   sx={{
-                    maxWidth: { xs: "100%", md: "500px" }, // Full width on small screens, larger on md
+                    maxWidth: { xs: "100%", md: "500px" },
                   }}
                 >
                   Add to Cart

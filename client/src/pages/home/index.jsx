@@ -50,7 +50,7 @@ const HomePage = () => {
             <div className="flex-grow border-t border-1 border-black dark:border-white"></div>
           </div>
 
-          <div className="w-full h-[400px]">
+          <div className="flex flex-col justify-center w-full h-fit sm:h-[400px]">
             <OfferCrousel urls={images} />
           </div>
         </>

@@ -5,35 +5,39 @@ const IncrementerInput = ({
   quantity,
   onQuantityChange,
   maxQuantity,
-  sx}) => {
+}) => {
   const handleInputChange = (event) => {
-    const value = parseInt(event.target.value, 10);
+    const value = event.target.value;
 
-    if (!isNaN(value)) {
-      onQuantityChange(value);
+    // Allow empty string for clearing the input
+    if (value === "") {
+      onQuantityChange("");
+      return;
+    }
+
+    const numericValue = parseInt(value, 10);
+
+    if (!isNaN(numericValue)) {
+      onQuantityChange(numericValue);
     }
   };
 
   return (
-      <TextField
-        type="number"
-        fullWidth
-        value={quantity}
-        onChange={handleInputChange}
-        inputProps={{
-          min: 1,
-          max: maxQuantity,
-        }}
-        variant="outlined"
-        size="small"
-        sx={{
-          "& input": {
-            textAlign: "center",
-            fontSize: "1rem",
-            padding: "8px",
-          },
-        }}
-      />
+    <TextField
+      type="number"
+      fullWidth
+      value={quantity}
+      onChange={handleInputChange}
+      variant="outlined"
+      size="small"
+      sx={{
+        "& input": {
+          textAlign: "center",
+          fontSize: "1rem",
+          padding: "8px",
+        },
+      }}
+    />
   );
 };
 
