@@ -241,10 +241,9 @@ const ProductDetail = ({ product }) => {
                     height: 32,
                     borderRadius: "50%",
                     backgroundColor: color,
-                    border:
-                      selectedColor === color
-                        ? "2px solid blue"
-                        : "1px solid gray",
+                    border: "1px solid gray",
+                    scale: selectedColor === color ? 1.15 : 1,
+                    transition: "all 0.3s ease, background-color 0.3s ease",
                     cursor: "pointer",
                   }}
                   onClick={() => setSelectedColor(color)}

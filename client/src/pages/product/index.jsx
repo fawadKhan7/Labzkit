@@ -6,6 +6,7 @@ import { genders } from "../../data/selectFieldsData";
 import Loader from "../../components/Loader";
 import SearchInput from "../../components/Search";
 import debounce from "lodash.debounce"; // Import debounce
+import GenderDropdown from "../../components/FormField/DropdownField";
 const ProductsPage = () => {
   const { category } = useParams();
   const [categoryProducts, setCategoryProducts] = useState([]);
@@ -49,8 +50,9 @@ const ProductsPage = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search Products"
         />
-        <div className="relative w-full sm:w-48">
-          <select
+        {/* <div className="relative w-full sm:w-48"> */}
+        <GenderDropdown genderFilter={genderFilter} setGenderFilter={setGenderFilter} genders={genders}/>
+          {/* <select
             value={genderFilter}
             onChange={(e) => setGenderFilter(e.target.value)}
             className="w-full px-4 py-2 text-md border-0 border-b-2 border-gray-400 focus:outline-none focus:ring-0 focus:border-gray-600 transition-all duration-300"
@@ -61,8 +63,8 @@ const ProductsPage = () => {
                 {elem}
               </option>
             ))}
-          </select>
-        </div>
+          </select> */}
+        {/* </div> */}
       </div>{" "}
       {/* Loading Spinner */}
       {isLoading ? (

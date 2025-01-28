@@ -1,11 +1,8 @@
-import React from "react";
-import { TextField } from "@mui/material";
+"use client";
 
-const IncrementerInput = ({
-  quantity,
-  onQuantityChange,
-  maxQuantity,
-}) => {
+import React from "react";
+
+const IncrementerInput = ({ quantity, onQuantityChange, maxQuantity }) => {
   const handleInputChange = (event) => {
     const value = event.target.value;
 
@@ -17,27 +14,21 @@ const IncrementerInput = ({
 
     const numericValue = parseInt(value, 10);
 
-    if (!isNaN(numericValue)) {
+    if (!isNaN(numericValue) && numericValue <= maxQuantity) {
       onQuantityChange(numericValue);
     }
   };
 
   return (
-    <TextField
-      type="number"
-      fullWidth
-      value={quantity}
-      onChange={handleInputChange}
-      variant="outlined"
-      size="small"
-      sx={{
-        "& input": {
-          textAlign: "center",
-          fontSize: "1rem",
-          padding: "8px",
-        },
-      }}
-    />
+    <div className="relative w-full">
+      <input
+        type="number"
+        value={quantity}
+        onChange={handleInputChange}
+        className="w-36 text-center text-sm py-1 px-2 border-2 border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00A76F] focus:border-[#00A76F] transition-all duration-300"
+        placeholder="Enter quantity"
+      />
+    </div>
   );
 };
 

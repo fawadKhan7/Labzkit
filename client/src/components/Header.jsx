@@ -38,7 +38,7 @@ const Header = () => {
       <div className="flex flex-wrap items-center justify-between gap-5 w-full">
         {/* Logo */}
         <NavLink to="/">
-          <div className="bg-black w-fit py-2 px-1 md:px-4 text-white flex justify-center font-barrio">
+          <div className="bg-black w-fit py-2 px-1 md:px-4 text-sm text-white flex justify-center font-barrio">
             LabzKit
           </div>
         </NavLink>
@@ -65,35 +65,35 @@ const Header = () => {
           </button>
 
           <ul
-            className={`lg:flex  gap-x-5 max-lg:space-y-3 max-lg:fixed max-lg:bg-white max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50 ${
+            className={`lg:flex  gap-x-5 max-lg:space-y-3 max-lg:fixed max-lg:bg-white max-lg:w-1/5 max-lg:min-w-[240px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50 ${
               isMenuOpen ? "max-lg:block" : "max-lg:hidden"
             }`}
           >
-            <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-3 px-3">
+            <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-1 px-3">
               <NavLink
                 to="/"
-                className="hover:text-blue-500 text-gray-500 text-[16px]"
+                className="hover:text-[#00A76F] text-gray-500 text-[12px]"
               >
                 Home
               </NavLink>
             </li>
-            <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-3 px-3">
+            <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-1 px-3">
               <NavLink
                 to="/about-us"
-                className="hover:text-blue-500 text-gray-500 text-[16px]"
+                className="hover:text-[#00A76F] text-gray-500 text-[12px]"
               >
                 About
               </NavLink>
             </li>
-            <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-3 px-3">
+            <li className="max-lg:border-b  leading-7 font-[500] border-gray-300 max-lg:py-1 px-3">
               <NavLink
                 to="/contact-us"
-                className="hover:text-blue-500 text-gray-500 text-[16px]"
+                className="hover:text-[#00A76F] text-gray-500 text-[12px]"
               >
                 Contact
               </NavLink>
             </li>
-            <li className="max-lg:border-b border-gray-300 max-lg:py-3 px-3">
+            <li className="max-lg:border-b border-gray-300 max-lg:py-1 px-3">
               <CategoryDropdown categories={categoriesData} />
             </li>
           </ul>
@@ -103,7 +103,7 @@ const Header = () => {
         <div className="flex items-center gap-4 max-lg:ml-auto space-x-3">
           {!isAdmin && (
             <NavLink to="/cart" className="relative">
-              <FaShoppingCart className="text-xl hover:text-blue-300" />
+              <FaShoppingCart className="text-xl text-[#00A76F] hover:text-green-600" />
               <span className="absolute top-2 left-4 px-[6px] rounded-full bg-red-500 text-white text-xs">
                 {cartLength}
               </span>
@@ -113,12 +113,12 @@ const Header = () => {
             <>
               {isAdmin && (
                 <NavLink to="/admin/products/">
-                  <FaUserAlt className="text-xl hover:text-blue-300" />
+                  <FaUserAlt className="text-md hover:text-blue-300" />
                 </NavLink>
               )}
               <button
                 onClick={logout}
-                className="px-4 py-2 text-sm rounded-full bg-red-500 text-white hover:bg-red-600"
+                className="px-2 py-1 text-[12px] rounded-full bg-red-500 text-white hover:bg-red-600"
               >
                 Logout
               </button>
@@ -126,12 +126,12 @@ const Header = () => {
           ) : (
             <>
               <NavLink to="/login">
-                <button className="px-4 py-2 text-sm rounded-full text-white bg-blue-500 hover:bg-blue-600">
+                <button className="px-2 py-1 text-[12px] rounded-full text-white bg-[#00A76F] hover:bg-green-600">
                   Login
                 </button>
               </NavLink>
               <NavLink to="/register">
-                <button className="px-4 py-2 text-sm rounded-full text-white bg-green-500 hover:bg-green-600">
+                <button className="px-2 py-1 text-[12px] rounded-full text-white bg-[#00A76F] hover:bg-green-600">
                   Sign Up
                 </button>
               </NavLink>

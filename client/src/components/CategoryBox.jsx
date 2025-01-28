@@ -4,7 +4,6 @@ import { Box, Card, Typography, useTheme } from "@mui/material";
 
 const CategoryBox = ({ name, imageUrl, id }) => {
   const navigate = useNavigate();
-  const theme = useTheme();
 
   const handleClick = () => {
     navigate(`/products/${id}`);

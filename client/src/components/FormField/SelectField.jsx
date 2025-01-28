@@ -1,5 +1,6 @@
+"use client";
+
 import React from "react";
-import { Select, MenuItem, InputLabel, FormControl, FormHelperText } from "@mui/material";
 
 const CustomSelect = ({
   name,
@@ -11,30 +12,42 @@ const CustomSelect = ({
   ...other
 }) => {
   return (
-    <FormControl fullWidth size="small" error={!!helperText}>
-      <InputLabel id={name}>{label}</InputLabel>
-      <Select
-        labelId={name}
+    <div className="relative w-full">
+      {/* Label */}
+      <label
+        htmlFor={name}
+        className="block text-sm  text-gray-700 mb-1"
+      >
+        {label}
+      </label>
+
+      {/* Select Dropdown */}
+      <select
+        id={name}
+        name={name}
         value={value}
         onChange={onChange}
-        label={label}
+        className={`w-full px-4 py-2 text-sm text-gray-500 border-b-2 border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00A76F] focus:border-[#00A76F] ${
+          helperText ? "border-red-500" : ""
+        }`}
         {...other}
       >
         {/* Placeholder */}
-        <MenuItem value="" disabled>
+        <option value="" disabled>
           {label}
-        </MenuItem>
-        
+        </option>
+
         {/* Options */}
         {options.map((option) => (
-          <MenuItem key={option} value={option}>
+          <option key={option} value={option}>
             {option}
-          </MenuItem>
+          </option>
         ))}
-      </Select>
-      
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
-    </FormControl>
+      </select>
+
+      {/* Error Message */}
+      {helperText && <p className="text-xs text-red-500 mt-1">{helperText}</p>}
+    </div>
   );
 };
 

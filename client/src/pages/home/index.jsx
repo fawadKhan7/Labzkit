@@ -6,6 +6,7 @@ import { getImages } from "../../api/images";
 import OfferCrousel from "../../components/OfferCrousel";
 import SearchInput from "../../components/Search";
 import Loader from "../../components/Loader";
+import OrderCountDisplay from "../../components/OrderCoutDisplay";
 
 const HomePage = () => {
   const [categoriesData, setCategoriesData] = useState([]);
@@ -56,9 +57,24 @@ const HomePage = () => {
         </>
       )}
 
+      <div className="flex-col justify-center md:w-1/2 w-full mx-auto md:py-20 py-10">
+        <h1 className="text-2xl md:text-4xl font-bold text-[#00A76F] text-center mb-4">
+          Explore Premium Lab Equipment at Labzkit
+        </h1>
+        <p className="text-sm md:text-lg text-gray-700 text-center mb-4">
+          Discover top-quality lab tools, from microscopes to precise
+          instruments, designed for all your scientific needs.
+        </p>
+        <p className="text-sm md:text-lg text-gray-700 text-center">
+          Equip your lab with trusted brands and get fast, reliable delivery –
+          all at competitive prices.
+        </p>
+      </div>
+      <OrderCountDisplay duration={7} />
+
       <div className="flex items-center space-x-4 mb-6">
         <div className="flex-grow border-t border-1 border-black dark:border-white"></div>
-        <h1 className="text-gray-900 dark:text-darkText text-lg">
+        <h1 className="text-gray-900 dark:text-darkText md:text-lg text-sm">
           Featured Categories
         </h1>
         <div className="flex-grow border-t border-1 border-black dark:border-white"></div>
@@ -66,14 +82,14 @@ const HomePage = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex justify-center mb-6">
-            <SearchInput
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search Category"
-            />
+          <SearchInput
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search Category"
+          />
         </div>{" "}
         {isLoading ? (
-          <Loader/>
+          <Loader />
         ) : categoriesData.length > 0 ? (
           <div className="w-[80%] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-10">
             {categoriesData.map((category) => (
