@@ -2,7 +2,7 @@ import CountUp from "react-countup";
 
 const OrderCountDisplay = ({ duration = 5 }) => {
   return (
-    <div className="md:flex flex-col items-center justify-center h-auto gap-10">
+    <div className="md:flex md:flex-row flex-col items-center justify-center h-auto gap-10">
       <div className="flex flex-col items-center">
         <h3 className="text-xl font-medium">Orders Completed</h3>
         <CountUp
