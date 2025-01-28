@@ -5,7 +5,7 @@ import { BsChat, BsHouse } from "react-icons/bs";
 
 const AboutUS = () => {
   return (
-    <div className="flex flex-col w-[800px] mx-auto gap-6 my-8">
+    <div className="flex flex-col w-full md:w-[800px] mx-auto gap-6 my-8">
       <div className="font-bold text-center text-4xl">About Labzkit</div>
       <div className="bg-[#eff5ec] p-6 ">
         <p>
@@ -95,7 +95,62 @@ const AboutUS = () => {
         </p>
       </div>
       <div className="font-bold text-xl">For Discount</div>
-      <img src={Discount} alt="Discount Offer" />
+      <div class="max-w-2xl mx-auto p-4">
+        {" "}
+        <div class="border border-gray-300 rounded-lg overflow-hidden">
+          {" "}
+          <div class="bg-[#d7e4c2] p-3 text-center font-medium">
+            {" "}
+            Save More with Bulk Discounts!{" "}
+          </div>{" "}
+          <div class="p-3 border-b border-gray-300 text-sm">
+            {" "}
+            Below are the available bulk discount rates for each individual item
+            when you purchase a certain amount:{" "}
+          </div>{" "}
+          <table class="w-full">
+            {" "}
+            <thead>
+              {" "}
+              <tr class="border-b border-gray-300">
+                {" "}
+                <th class="py-2 px-4 text-center">Purchase Range</th>{" "}
+                <th class="py-2 px-4 text-center">Discount</th>{" "}
+              </tr>{" "}
+            </thead>{" "}
+            <tbody>
+              {" "}
+              <tr class="border-b border-gray-300">
+                {" "}
+                <td class="py-2 px-4 text-center">Buy 5 - 9</td>{" "}
+                <td class="py-2 px-4 text-center">3% off</td>{" "}
+              </tr>{" "}
+              <tr class="border-b border-gray-300">
+                {" "}
+                <td class="py-2 px-4 text-center">Buy 10 - 24</td>{" "}
+                <td class="py-2 px-4 text-center">5% off</td>{" "}
+              </tr>{" "}
+              <tr class="border-b border-gray-300">
+                {" "}
+                <td class="py-2 px-4 text-center">Buy 25 - 49</td>{" "}
+                <td class="py-2 px-4 text-center">10% off</td>{" "}
+              </tr>{" "}
+              <tr class="border-b border-gray-300">
+                {" "}
+                <td class="py-2 px-4 text-center">Buy 50 or above</td>{" "}
+                <td class="py-2 px-4 text-center">15% off</td>{" "}
+              </tr>{" "}
+            </tbody>{" "}
+          </table>{" "}
+          <div class="bg-[#d7e4c2] p-3 text-center text-sm">
+            {" "}
+            <p  class="underline hover:text-gray-700">
+              {" "}
+              For orders over 100pc, please contact us HERE for the best Price{" "}
+            </p>{" "}
+          </div>{" "}
+        </div>
+      </div>{" "}
     </div>
   );
 };
